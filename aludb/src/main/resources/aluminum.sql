@@ -2,7 +2,7 @@
 DROP TABLE IF EXISTS aldata;
 create table aldata(
 	id bigint(20) primary key not null auto_increment,
-	cao_id int not null comment "槽号",
+	cao_id int not null comment "槽号",                 
 	cao_ling varchar(20) comment "槽龄(天)",
 	cao_xing varchar(10) comment "槽型",
 	yunxingshijian int(20) comment "运行时间(分钟)",
