@@ -175,8 +175,8 @@ public class Convert {
 	
 			convert.readExcelTitle("/home/ucas/software/aluminium-electrolysis/1-1-2015-10-1-csv.csv");
 			convert.convertExcelFiles(
-					"/home/ucas/software/aluminium-electrolysis/一厂房日报/一厂一区", 
-					"/home/ucas/software/aluminium-electrolysis/CSV日报/CSV一厂房日报/CSV一厂一区-temp");
+					"/home/ucas/software/aluminium-electrolysis/二厂房日报/二厂二区", 
+					"/home/ucas/software/aluminium-electrolysis/CSV日报/CSV二厂房日报/CSV二厂二区-temp");
 
 
 		} catch (Exception e) {
