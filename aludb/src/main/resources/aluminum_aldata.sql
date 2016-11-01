@@ -24,9 +24,9 @@ DROP TABLE IF EXISTS `aldata`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `aldata` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `cao_id` int(11) NOT NULL COMMENT '槽号',
-  `cao_ling` varchar(20) DEFAULT NULL COMMENT '槽龄(天)',
-  `cao_xing` varchar(10) DEFAULT NULL COMMENT '槽型',
+  `caoid` int(11) NOT NULL,
+  `caoling` varchar(10) NOT NULL,
+  `caoxing` varchar(10) NOT NULL,
   `yunxingshijian` int(20) DEFAULT NULL COMMENT '运行时间(分钟)',
   `jialiaoliang` int(20) DEFAULT NULL COMMENT '加料量(kg)',
   `jialiaocishu` int(20) DEFAULT NULL COMMENT '加料次数',
@@ -52,7 +52,8 @@ CREATE TABLE `aldata` (
   `riqi` datetime DEFAULT NULL COMMENT '日期',
   `dianliuxiaolv` float(7,3) DEFAULT NULL,
   `class` varchar(10) DEFAULT NULL COMMENT '类别',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `classIndex` (`class`)
 ) ENGINE=InnoDB AUTO_INCREMENT=63684 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -78,4 +79,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-10-31 16:57:52
+-- Dump completed on 2016-11-01 13:51:09
