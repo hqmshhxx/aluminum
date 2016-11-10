@@ -66,8 +66,8 @@ public class ApacheFCM {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		ApacheFCM bi = new ApacheFCM();
-		bi.loadData("/home/ucas/software/aluminium-electrolysis/one-log/101.arff");
-//		bi.loadData("/home/ucas/software/weka-3-6-13/data/cpu.arff");
+//		bi.loadData("/home/ucas/software/aluminium-electrolysis/one-log/101.arff");
+		bi.loadData("/home/ucas/software/aluminium-electrolysis/CSV日报/7820.arff");
 
 		bi.buildCluster();
 		
