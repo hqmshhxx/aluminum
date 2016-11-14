@@ -1,12 +1,10 @@
 package abc.standard;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import weka.core.Utils;
 
-public class RasBeeImpr {
+public class SphereBee {
 
 	/** The number of colony size (employed bees+onlooker bees) */
 	int NP = 40;
@@ -19,18 +17,17 @@ public class RasBeeImpr {
 	int limit = 200;
 	/** The number of cycles for foraging {a stopping criteria} */
 	int maxCycle = 2000;
-	int mCycle = 0;
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
 	int dimension = 100;
 	/** lower bound of the parameters. */
-	double lb = -5.12;
+	double lb = -100.0;
 	/**
 	 * upper bound of the parameters. lb and ub can be defined as arrays for the
 	 * problems of which parameters have different bounds
 	 */
-	double ub = 5.12;
+	double ub = 100.0;
 
 	/** Algorithm can be run many times in order to see its robustness */
 	int runtime = 30;
@@ -91,10 +88,6 @@ public class RasBeeImpr {
 	double globalMins[] = new double[runtime];
 	/** a random number in the range [0,1) */
 	double r;
-	/**
-	 * the mean Euclidean distance between X_{m} and the rest  of solutions
-	 */
-	double mean;
 
 	/*
 	 * a function pointer returning double and taking a dimension-dimensional
@@ -116,8 +109,9 @@ public class RasBeeImpr {
 
 	/* Write your own objective function name instead of sphere */
 	// FunctionCallback function = &sphere;
+
 	
-	
+
 	/*
 	 * Variables are initialized in the range [lb,ub]. If each parameter has
 	 * different range, use arrays lb[j], ub[j] instead of lb and ub
@@ -146,78 +140,6 @@ public class RasBeeImpr {
 			globalParams[i] = foods[0][i];
 	}
 
-
-	/**
-	 * mean Euclidean distances between X_{m} and the rest of solutions.
-	 * @return
-	 */
-	public void calculateMean(int index){
-		double sum=0;
-		for(int i=0; i< foodNum; i++){
-			double total = 0;
-			if(index!=i){
-			for(int j=0; j<dimension; j++){
-					total+=Math.pow(foods[index][j] - foods[i][j],2);
-				}
-			}
-			sum+=total;
-		}
-		mean= sum/(foodNum-1);
-	}
-	/**
-	 * calculate the  neighbor of  X_{m} and itself (N_{m})
-	 * @param index
-	 * @return
-	 */
-	public List<double[]> calculateNeighbor(int index){
-		List<double[]> neighbors = new ArrayList<>();
-		calculateMean(index);
-		for(int i=0; i<foodNum; i++){
-			double total =0;
-			if(index !=i){
-				for(int j=0; j<dimension; j++){
-					total += Math.pow(foods[index][j] - foods[i][j], 2);
-				}
-			}
-			if(total < mean){
-				neighbors.add(foods[i]);
-			}
-		}
-		return neighbors;
-	}
-	/**
-	 * calculate the best solution among the neighbor of  X_{m} and itself (N_{m})
-	 * @param index
-	 * @return X_{Nm}^best
-	 */
-	public double[] calculateNeighborBest(int index){
-		List<double[]> neighbors = calculateNeighbor(index);
-		double maxFit = lb;
-		double[] maxNeighbor = null;
-		for(double[] neighbor : neighbors){
-			double objVal = calculateFunction(neighbor);
-			double fitness = calculateFitness(objVal);
-			if(maxFit<fitness){
-				maxFit = fitness;
-				maxNeighbor = neighbor;
-			}
-		}
-		return maxNeighbor;
-		
-	}
-	/** The best food source is memorized */
-	public void memorizeBestSource() {
-		int i, j;
-		for (i = 0; i < foodNum; i++) {
-			if (funVal[i] < globalMin) {
-				globalMin = funVal[i];
-				for (j = 0; j < dimension; j++)
-					globalParams[j] = foods[i][j];
-			}
-		}
-	}
-
-	
 	/**
 	 * Employed Bee Phase
 	 */
@@ -241,7 +163,7 @@ public class RasBeeImpr {
 			r = rand.nextDouble() * 2 - 1;
 			solution[param2change] = foods[i][param2change]
 					+ (foods[i][param2change] - foods[neighbour][param2change])
-					* r*(1+Math.exp(-maxCycle*1.0/mCycle));
+					* r;
 
 			/*
 			 * if generated parameter value is out of boundaries, it is shifted
@@ -282,7 +204,6 @@ public class RasBeeImpr {
 		/* end of employed bee phase */
 
 	}
-
 
 	public void calculateProbabilities() {
 
@@ -333,15 +254,14 @@ public class RasBeeImpr {
 				}
 				for (j = 0; j < dimension; j++)
 					solution[j] = foods[i][j];
-				double[] bestNeighbor = calculateNeighborBest(i);
-				int minFIndex = Utils.minIndex(funVal);
-				
+
 				/* v_{ij}=x_{ij}+\phi_{ij}*(x_{kj}-x_{ij}) */
-				
+				// r = ((double) Math.random() * 32767 / ((double) (32767) +
+				// (double) (1)));
 				r = rand.nextDouble() * 2 - 1;
-				solution[param2change] =  bestNeighbor[param2change]
-						+ (bestNeighbor[param2change] - foods[neighbour][param2change])* r+
-						rand.nextDouble()*1.5*(foods[minFIndex][param2change]-bestNeighbor[param2change]);
+				solution[param2change] = foods[i][param2change]
+						+ (foods[i][param2change] - foods[neighbour][param2change])
+						* r;
 
 				/*
 				 * if generated parameter value is out of boundaries, it is
@@ -411,7 +331,17 @@ public class RasBeeImpr {
 		return result;
 	}
 
-	
+	/** The best food source is memorized */
+	public void memorizeBestSource() {
+		int i, j;
+		for (i = 0; i < foodNum; i++) {
+			if (funVal[i] < globalMin) {
+				globalMin = funVal[i];
+				for (j = 0; j < dimension; j++)
+					globalParams[j] = foods[i][j];
+			}
+		}
+	}
 	/**
 	 * calculate function value
 	 * 
@@ -419,7 +349,7 @@ public class RasBeeImpr {
 	 * @return
 	 */
 	public double calculateFunction(double sol[]) {
-		return Rastrigin(sol);
+		return sphere(sol);
 
 	}
 
@@ -473,7 +403,7 @@ public class RasBeeImpr {
 	}
 
 	public static void main(String[] args) {
-		RasBeeImpr bee = new RasBeeImpr();
+		SphereBee bee = new SphereBee();
 		int iter = 0;
 		int run = 0;
 		int j = 0;
@@ -482,7 +412,6 @@ public class RasBeeImpr {
 			bee.initial();
 			bee.memorizeBestSource();
 			for (iter = 0; iter < bee.maxCycle; iter++) {
-				bee.mCycle = iter+1;
 				bee.sendEmployedBees();
 				bee.calculateProbabilities();
 				bee.sendOnlookerBees();

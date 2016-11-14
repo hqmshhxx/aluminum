@@ -6,7 +6,7 @@ import java.util.Random;
 
 import weka.core.Utils;
 
-public class RasBeeImpr {
+public class SphereBeeImpr {
 
 	/** The number of colony size (employed bees+onlooker bees) */
 	int NP = 40;
@@ -25,12 +25,12 @@ public class RasBeeImpr {
 	/** The number of parameters of the problem to be optimized */
 	int dimension = 100;
 	/** lower bound of the parameters. */
-	double lb = -5.12;
+	double lb = -100.0;
 	/**
 	 * upper bound of the parameters. lb and ub can be defined as arrays for the
 	 * problems of which parameters have different bounds
 	 */
-	double ub = 5.12;
+	double ub = 100.0;
 
 	/** Algorithm can be run many times in order to see its robustness */
 	int runtime = 30;
@@ -419,7 +419,7 @@ public class RasBeeImpr {
 	 * @return
 	 */
 	public double calculateFunction(double sol[]) {
-		return Rastrigin(sol);
+		return sphere(sol);
 
 	}
 
@@ -473,7 +473,7 @@ public class RasBeeImpr {
 	}
 
 	public static void main(String[] args) {
-		RasBeeImpr bee = new RasBeeImpr();
+		SphereBeeImpr bee = new SphereBeeImpr();
 		int iter = 0;
 		int run = 0;
 		int j = 0;
