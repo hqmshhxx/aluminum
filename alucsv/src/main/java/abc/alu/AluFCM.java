@@ -1,4 +1,4 @@
-package cluster;
+package abc.alu;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +31,7 @@ import weka.core.matrix.Matrix;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.ReplaceMissingValues;
 
-public class FastFCM extends RandomizableClusterer implements
+public class AluFCM extends RandomizableClusterer implements
 		NumberOfClustersRequestable, WeightedInstancesHandler,
 		TechnicalInformationHandler {
 
@@ -62,7 +62,7 @@ public class FastFCM extends RandomizableClusterer implements
 	 * holds the cluster centroids. 聚类中心
 	 */
 	protected Instances m_ClusterCentroids;
-	
+
 	protected Instances[] mClusters;
 
 	/**
@@ -140,6 +140,7 @@ public class FastFCM extends RandomizableClusterer implements
 	 *  objective function value. 目标函数值
 	 */
 	private double m_ObjFunValue = 0;
+
 	/**
 	 * uij is the degree of membership of xi in the cluster j
 	 */
@@ -166,9 +167,10 @@ public class FastFCM extends RandomizableClusterer implements
 	/** For parallel execution mode */
 	protected transient ExecutorService m_executorPool;
 
-	public FastFCM() {
+	public AluFCM() {
 		m_SeedDefault = 10;
 		setSeed(m_SeedDefault);
+		startExecutorPool();
 	}
 
 	/**
@@ -180,6 +182,14 @@ public class FastFCM extends RandomizableClusterer implements
 		}
 
 		m_executorPool = Executors.newFixedThreadPool(m_executionSlots);
+	}
+	/**
+	 * stop the pool of execution threads
+	 */
+	protected void stopExecutorPool() {
+		if (m_executorPool != null) {
+			m_executorPool.shutdown();
+		}
 	}
 
 	@Override
@@ -234,7 +244,8 @@ public class FastFCM extends RandomizableClusterer implements
 		if (m_displayStdDevs) {
 			m_FullStdDevs = instances.variances();
 		}
-		m_FullMeansOrMediansOrModes = calculateMeansOrMediansOrModes(0,instances, true);
+		m_FullMeansOrMediansOrModes = calculateMeansOrMediansOrModes(0,
+				instances, true);
 
 		m_FullMissingCounts = m_ClusterMissingCounts[0];
 		m_FullNominalCounts = m_ClusterNominalCounts[0];
@@ -290,14 +301,17 @@ public class FastFCM extends RandomizableClusterer implements
 		m_NumClusters = m_ClusterCentroids.numInstances();
 		// removing reference
 		initInstances = null;
-		
+
 		m_squaredErrors = new double[m_NumClusters];
-		m_ClusterNominalCounts = new double[m_NumClusters][instances.numAttributes()][0];
-		m_ClusterMissingCounts = new double[m_NumClusters][instances.numAttributes()];
-		startExecutorPool();
+		m_ClusterNominalCounts = new double[m_NumClusters][instances
+				.numAttributes()][0];
+		m_ClusterMissingCounts = new double[m_NumClusters][instances
+				.numAttributes()];
+		
 		initMemberShip(instances);
 		double lastFunVal = 0.0d;
 		do {
+			lastFunVal = m_ObjFunValue;
 			updateCentroid(instances);
 			updateMemberShip(instances);
 			calculateObjectiveFunction(instances);
@@ -308,6 +322,17 @@ public class FastFCM extends RandomizableClusterer implements
 		// save memory!
 		m_DistanceFunction.clean();
 
+	}
+	
+	public double buildModel(Instances instances){
+		updateMemberShip(instances);
+		calculateObjectiveFunction(instances);
+		return m_ObjFunValue;
+	}
+	public Instances buildCentroids(Instances instances){
+		updateMemberShip(instances);
+		updateCentroid(instances);
+		return m_ClusterCentroids;
 	}
 
 	public synchronized void initMemberShip(Instances instances) {
@@ -321,13 +346,14 @@ public class FastFCM extends RandomizableClusterer implements
 			if (i == m_NumClusters - 1) {
 				end = instances.numInstances();
 			}
-			results.add(m_executorPool.submit(new InitMembershipTask(instances, start, end)));
+			results.add(m_executorPool.submit(new InitMembershipTask(instances,
+					start, end)));
 		}
-		try{
-			for(Future<Boolean> task : results){
+		try {
+			for (Future<Boolean> task : results) {
 				task.get();
 			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -363,7 +389,8 @@ public class FastFCM extends RandomizableClusterer implements
 	private synchronized void updateCentroid(Instances instances) {
 		List<Future<Instance>> results = new ArrayList<Future<Instance>>();
 		for (int k = 0; k < m_NumClusters; k++) {
-			Future<Instance> task = m_executorPool.submit(new ComputeCentroidTask(instances, k));
+			Future<Instance> task = m_executorPool
+					.submit(new ComputeCentroidTask(instances, k));
 			results.add(task);
 		}
 		m_ClusterCentroids.clear();
@@ -407,16 +434,17 @@ public class FastFCM extends RandomizableClusterer implements
 		}
 	}
 
-	private synchronized void updateMemberShip(Instances instances) {
+	protected synchronized void updateMemberShip(Instances instances) {
 		List<Future<Boolean>> results = new ArrayList<Future<Boolean>>();
 		for (int j = 0; j < m_NumClusters; j++) {
-			results.add(m_executorPool.submit(new ComputeMembershipTask(j, instances)));
+			results.add(m_executorPool.submit(new ComputeMembershipTask(j,
+					instances)));
 		}
-		try{
-			for(Future<Boolean> task : results){
+		try {
+			for (Future<Boolean> task : results) {
 				task.get();
 			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -447,7 +475,7 @@ public class FastFCM extends RandomizableClusterer implements
 		}
 	}
 
-	private synchronized double  calculateObjectiveFunction(Instances instances) {
+	private synchronized double calculateObjectiveFunction(Instances instances) {
 		double sum = 0;
 		int numPerTask = instances.numInstances() / m_executionSlots;
 		List<Future<Double>> results = new ArrayList<Future<Double>>();
@@ -457,7 +485,8 @@ public class FastFCM extends RandomizableClusterer implements
 			if (i == m_NumClusters - 1) {
 				end = instances.numInstances();
 			}
-			Future<Double> task = m_executorPool.submit(new ComputeObjectvieFunction(instances, start, end));
+			Future<Double> task = m_executorPool
+					.submit(new ComputeObjectvieFunction(instances, start, end));
 			results.add(task);
 		}
 		try {
@@ -792,6 +821,12 @@ public class FastFCM extends RandomizableClusterer implements
 	public Instances getClusterCentroids() {
 		return m_ClusterCentroids;
 	}
+	/**
+	 * Sets the the cluster centroids.
+	 */
+	public void setClusterCentroids(Instances centroids) {
+		m_ClusterCentroids = centroids;
+	}
 
 	/**
 	 * Gets the standard deviations of the numeric attributes in each cluster.
@@ -854,9 +889,10 @@ public class FastFCM extends RandomizableClusterer implements
 		return m_Assignments;
 	}
 
-	public Instances[] getClusters(){
+	public Instances[] getClusters() {
 		return mClusters;
 	}
+
 	@Override
 	public void setOptions(String[] options) throws Exception {
 		// TODO Auto-generated method stub
@@ -1247,6 +1283,5 @@ public class FastFCM extends RandomizableClusterer implements
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		runClusterer(new FastFCM(), args);
 	}
 }

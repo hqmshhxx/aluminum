@@ -241,7 +241,7 @@ public class SphereBeeImpr {
 			r = rand.nextDouble() * 2 - 1;
 			solution[param2change] = foods[i][param2change]
 					+ (foods[i][param2change] - foods[neighbour][param2change])
-					* r*(1+Math.exp(-maxCycle*1.0/mCycle));
+					* r*(1 + 1/(Math.exp(-maxCycle*1.0/mCycle)+1));
 
 			/*
 			 * if generated parameter value is out of boundaries, it is shifted

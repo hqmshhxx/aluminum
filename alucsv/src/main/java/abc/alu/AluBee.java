@@ -1,12 +1,16 @@
-package abc.standard;
+package abc.alu;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import cluster.FastFCM;
+import weka.core.DenseInstance;
+import weka.core.Instance;
+import weka.core.Instances;
 import weka.core.Utils;
 
-public class RasBeeImpr {
+public class AluBee {
 
 	/** The number of colony size (employed bees+onlooker bees) */
 	int NP = 40;
@@ -18,19 +22,19 @@ public class RasBeeImpr {
 	 */
 	int limit = 200;
 	/** The number of cycles for foraging {a stopping criteria} */
-	int maxCycle = 2000;
+	int maxCycle = 500;
 	int mCycle = 0;
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
-	int dimension = 100;
+	int dimension = 4*3;
 	/** lower bound of the parameters. */
-	double lb = -5.12;
+	double lb = 0;
 	/**
 	 * upper bound of the parameters. lb and ub can be defined as arrays for the
 	 * problems of which parameters have different bounds
 	 */
-	double ub = 5.12;
+	double ub = 1;
 
 	/** Algorithm can be run many times in order to see its robustness */
 	int runtime = 30;
@@ -94,29 +98,20 @@ public class RasBeeImpr {
 	/**
 	 * the mean Euclidean distance between X_{m} and the rest  of solutions
 	 */
-	double mean;
-
-	/*
-	 * a function pointer returning double and taking a dimension-dimensional
-	 * array as argument
-	 */
-	/*
-	 * If your function takes additional arguments then change function pointer
-	 * definition and lines calling "...=function(solution);" in the code
-	 */
-
-	// typedef double (*FunctionCallback)(double sol[dimension]);
-
-	/* benchmark functions */
-
-	// double sphere(double sol[dimension]);
-	// double Rosenbrock(double sol[dimension]);
-	// double Griewank(double sol[dimension]);
-	// double Rastrigin(double sol[dimension]);
-
-	/* Write your own objective function name instead of sphere */
-	// FunctionCallback function = &sphere;
+	double mean = 0;
 	
+	int centroidNum = 3;
+	
+	private AluFCM fcm;
+	
+	protected Instances data;
+	
+	public AluBee(){}
+	
+	public AluBee(AluFCM fcm){
+		this.fcm = fcm;
+	}
+
 	
 	/*
 	 * Variables are initialized in the range [lb,ub]. If each parameter has
@@ -125,8 +120,7 @@ public class RasBeeImpr {
 	/* Counters of food sources are also initialized in this function */
 
 	public void init(int index) {
-		int j;
-		for (j = 0; j < dimension; j++) {
+		for (int j = 0; j < dimension; j++) {
 			foods[index][j] = Math.random() * (ub - lb) + lb;
 			solution[j] = foods[index][j];
 		}
@@ -306,8 +300,8 @@ public class RasBeeImpr {
 		t = 0;
 		Random rand = new Random();
 		while (t < foodNum) {
-
-			r = ((double) Math.random() * 32767 / ((double) (32767) + (double) (1)));
+			r = Math.random();
+//			r = ((double) Math.random() * 32767 / ((double) (32767) + (double) (1)));
 			/*
 			 * choose a food source depending on its probability to be chosen
 			 */
@@ -410,7 +404,53 @@ public class RasBeeImpr {
 		}
 		return result;
 	}
+	public  void calculateFcm(){
+		for(int i=0; i<foodNum; i++){
+			for (int u = 0; u < dimension; u++){
+				solution[u] = foods[i][u];
+			}
+			int k =0;
+			Instances centroids = arrayToInstances(solution);
+			fcm.setClusterCentroids(centroids);
+			Instances ins =fcm.buildCentroids(centroids);
+			for(int ii =0; ii<ins.numInstances();ii++){
+				Instance in = ins.get(ii);
+				for(int jj = 0;jj<in.numAttributes();jj++){
+					solution[k++]=in.value(jj);
+				}
+			}
+			
+			objValSol = calculateFunction(solution);
+			fitnessSol = calculateFitness(objValSol);
 
+			/*
+			 * a greedy selection is applied between the current solution i and
+			 * its mutant
+			 */
+			if (fitnessSol > fitness[i]) {
+
+				/**
+				 * If the mutant solution is better than the current solution i,
+				 * replace the solution with the mutant and reset the trial
+				 * counter of solution i
+				 * */
+				trial[i] = 0;
+				for (int j = 0; j < dimension; j++)
+					foods[i][j] = solution[j];
+				funVal[i] = objValSol;
+				fitness[i] = fitnessSol;
+			} else {
+				/*
+				 * if the solution i can not be improved, increase its trial
+				 * counter
+				 */
+				trial[i] = trial[i] + 1;
+			}
+		}
+		
+		
+		
+	}
 	
 	/**
 	 * calculate function value
@@ -419,61 +459,31 @@ public class RasBeeImpr {
 	 * @return
 	 */
 	public double calculateFunction(double sol[]) {
-		return Rastrigin(sol);
+		Instances centroids = arrayToInstances(sol);
+		fcm.setClusterCentroids(centroids);
+		double funVal = fcm.buildModel(data);
+		return funVal;
 
 	}
-
-	double sphere(double sol[]) {
-		int j;
-		double top = 0;
-		for (j = 0; j < dimension; j++) {
-			top = top + sol[j] * sol[j];
+	public Instances arrayToInstances(double sol[]) {
+		int count = 0;
+		Instances centroids = new Instances(data,0);
+		for(int i=0;i<centroidNum; i++){
+			double[] val = new double[dimension/centroidNum];
+			for(int j=0; j< dimension/centroidNum; j++ ){
+				val[j] = sol[count++];
+			}
+			Instance ins = new DenseInstance(1.0,val);
+			centroids.add(ins);
 		}
-		return top;
+	
+		return centroids;
+
 	}
 
-	double Rosenbrock(double sol[]) {
-		int j;
-		double top = 0;
-		for (j = 0; j < dimension - 1; j++) {
-			top = top
-					+ 100
-					* Math.pow((sol[j + 1] - Math.pow((sol[j]), (double) 2)),
-							(double) 2) + Math.pow((sol[j] - 1), (double) 2);
-		}
-		return top;
-	}
-
-	double Griewank(double sol[]) {
-		int j;
-		double top1, top2, top;
-		top = 0;
-		top1 = 0;
-		top2 = 1;
-		for (j = 0; j < dimension; j++) {
-			top1 = top1 + Math.pow((sol[j]), (double) 2);
-			top2 = top2
-					* Math.cos((((sol[j]) / Math.sqrt((double) (j + 1))) * Math.PI) / 180);
-
-		}
-		top = (1 / (double) 4000) * top1 - top2 + 1;
-		return top;
-	}
-
-	public double Rastrigin(double sol[]) {
-		int j;
-		double top = 0;
-
-		for (j = 0; j < dimension; j++) {
-			top = top
-					+ (Math.pow(sol[j], (double) 2) - 10
-							* Math.cos(2 * Math.PI * sol[j]) + 10);
-		}
-		return top;
-	}
-
+	
 	public static void main(String[] args) {
-		RasBeeImpr bee = new RasBeeImpr();
+		AluBee bee = new AluBee();
 		int iter = 0;
 		int run = 0;
 		int j = 0;
