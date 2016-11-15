@@ -14,7 +14,10 @@ public class AluBeeFCM {
 		bee = new AluBee(fcm);
 	}
 	public void setData(Instances ins){
-		bee.data=ins;
+		fcm.init(ins);
+		Instances in = new Instances(ins,0);
+		in.add(ins.instance(0));
+		bee.setData(in);
 	}
 	
 	public void buildCluster(){
@@ -33,7 +36,6 @@ public class AluBeeFCM {
 			}
 			bee.globalMins[run] = bee.globalMin;
 			mean += bee.globalMin;
-			fcm.stopExecutorPool();
 		}
 		int maxIndex = Utils.maxIndex(bee.globalMins);
 		int minIndex = Utils.minIndex(bee.globalMins);

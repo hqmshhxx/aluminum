@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import cluster.FastFCM;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -13,14 +12,14 @@ import weka.core.Utils;
 public class AluBee {
 
 	/** The number of colony size (employed bees+onlooker bees) */
-	int NP = 40;
+	int NP = 20;
 	/** The number of food sources equals the half of the colony size */
 	int foodNum = NP / 2;
 	/**
 	 * A food source which could not be improved through "limit" trials is
 	 * abandoned by its employed bee
 	 */
-	int limit = 200;
+	int limit = 100;
 	/** The number of cycles for foraging {a stopping criteria} */
 	int maxCycle = 500;
 	int mCycle = 0;
@@ -111,8 +110,9 @@ public class AluBee {
 	public AluBee(AluFCM fcm){
 		this.fcm = fcm;
 	}
-
-	
+	public void setData(Instances data){
+		this.data = data;
+	}
 	/*
 	 * Variables are initialized in the range [lb,ub]. If each parameter has
 	 * different range, use arrays lb[j], ub[j] instead of lb and ub
