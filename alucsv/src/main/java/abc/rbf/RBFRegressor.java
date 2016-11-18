@@ -23,6 +23,7 @@ package abc.rbf;
 import java.util.Arrays;
 import java.util.Random;
 
+import cluster.LoadData;
 import weka.core.Capabilities;
 import weka.core.Capabilities.Capability;
 import weka.core.Instance;
@@ -211,8 +212,7 @@ public class RBFRegressor extends RBFModel implements WeightedInstancesHandler {
 
 		// For each output weight, include effect of ridge
 		for (int k = 0; k < m_numUnits; k++) {
-			grad[OFFSET_WEIGHTS + k] += m_ridge * 2
-					* m_RBFParameters[OFFSET_WEIGHTS + k];
+			grad[OFFSET_WEIGHTS + k] += m_ridge * 2 * m_RBFParameters[OFFSET_WEIGHTS + k];
 		}
 	}
 
@@ -220,15 +220,14 @@ public class RBFRegressor extends RBFModel implements WeightedInstancesHandler {
 	 * Update the gradient for the weights in the output layer.
 	 */
 	@Override
-	protected void updateGradient(double[] grad, Instance inst,
-			double[] outputs, double[] derivativesOutputs, double[] deltaHidden) {
+	protected void updateGradient(double[] grad, Instance inst,double[] outputs, 
+			double[] derivativesOutputs, double[] deltaHidden) {
 
 		// Initialise deltaHidden
 		Arrays.fill(deltaHidden, 0.0);
 
 		// Calculate delta from output unit
-		double deltaOut = inst.weight()
-				* (getOutput(outputs) - inst.classValue());
+		double deltaOut = inst.weight() * (getOutput(outputs) - inst.classValue());
 
 		// Go to next output unit if update too small
 		if (deltaOut <= m_tolerance && deltaOut >= -m_tolerance) {
@@ -253,6 +252,7 @@ public class RBFRegressor extends RBFModel implements WeightedInstancesHandler {
 	}
 
 	/**
+	 * 根据隐藏层的结果和输出层的权重线性计算出输出层的结果
 	 * Calculates the output of the network based on the given hidden layer
 	 * outputs.
 	 */
@@ -336,6 +336,17 @@ public class RBFRegressor extends RBFModel implements WeightedInstancesHandler {
 	 */
 	public static void main(String[] argv) {
 
-		runClassifier(new RBFRegressor(), argv);
+		RBFRegressor rbfr = new RBFRegressor();
+		String path = "/home/ucas/software/weka-3-8-0/data/cpu.arff";
+		LoadData ld = new LoadData();
+		try {
+			rbfr.buildClassifier(ld.loadData(path));
+			System.out.println(rbfr.toString());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			System.out.println("finished");
+		}
 	}
 }

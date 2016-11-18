@@ -267,7 +267,7 @@ public abstract class RBFModel extends RandomizableClassifier implements Technic
    * initial parameter vector.
    */
   protected Instances initializeClassifier(Instances data) throws Exception {
-
+	data.setClassIndex(data.numAttributes()-1);
     // can classifier handle the data?
     getCapabilities().testWithFail(data);
 
@@ -280,6 +280,7 @@ public abstract class RBFModel extends RandomizableClassifier implements Technic
       random = data.getRandomNumberGenerator(m_Seed);
     }
     data.randomize(random);
+   
 
     double y0 = data.instance(0).classValue(); // This stuff is not relevant in classification case
     int index = 1;
@@ -546,8 +547,7 @@ public abstract class RBFModel extends RandomizableClassifier implements Technic
 
       // Determine batch to be processed
       final int lo = j * chunksize;
-      final int hi = (j < m_numThreads - 1) ? (lo + chunksize) : m_data
-        .numInstances();
+      final int hi = (j < m_numThreads - 1) ? (lo + chunksize) : m_data.numInstances();
 
       // Create and submit new job, where each instance in batch is processed
       Future<Double> futureSE = m_Pool.submit(new Callable<Double>() {
@@ -559,7 +559,10 @@ public abstract class RBFModel extends RandomizableClassifier implements Technic
             final Instance inst = m_data.instance(k);
 
             // Calculate necessary input/output values and error term
+            //计算第i个instance到所有的centroids(聚类中心)的输出结果，结果存在outputs数组里。
+            //即outputs[k] = (|x_{i}-centroids_{k}|)^2/(2*sigma^2)
             calculateOutputs(inst, outputs, null);
+            //第i个instance的class vlaue与输出层结果的差值平方
             SE += calculateError(outputs, inst);
           }
           return SE;
@@ -595,8 +598,7 @@ public abstract class RBFModel extends RandomizableClassifier implements Technic
 
       // Determine batch to be processed
       final int lo = j * chunksize;
-      final int hi = (j < m_numThreads - 1) ? (lo + chunksize) : m_data
-        .numInstances();
+      final int hi = (j < m_numThreads - 1) ? (lo + chunksize) : m_data.numInstances();
 
       // Create and submit new job, where each instance in batch is processed
       Future<double[]> futureGrad = m_Pool.submit(new Callable<double[]>() {
@@ -611,10 +613,8 @@ public abstract class RBFModel extends RandomizableClassifier implements Technic
           for (int k = lo; k < hi; k++) {
             final Instance inst = m_data.instance(k);
             calculateOutputs(inst, outputs, derivativesHidden);
-            updateGradient(localGrad, inst, outputs, derivativesOutput,
-              deltaHidden);
-            updateGradientForHiddenUnits(localGrad, inst, derivativesHidden,
-              deltaHidden);
+            updateGradient(localGrad, inst, outputs, derivativesOutput, deltaHidden);
+            updateGradientForHiddenUnits(localGrad, inst, derivativesHidden, deltaHidden);
           }
           return localGrad;
         }
@@ -673,8 +673,7 @@ public abstract class RBFModel extends RandomizableClassifier implements Technic
           m_RBFParameters[OFFSET_SCALES], inst, i);
         break;
       }
-      case USE_SCALE_PER_UNIT_AND_ATTRIBUTE: { // One scale parameter for each
-                                               // unit and attribute
+      case USE_SCALE_PER_UNIT_AND_ATTRIBUTE: { // One scale parameter for each unit and attribute
         derivativeScalePerAttribute(grad, deltaHidden, inst, i);
         break;
       }
@@ -691,8 +690,7 @@ public abstract class RBFModel extends RandomizableClassifier implements Technic
    * Calculates partial derivatives in the case of different sigma per attribute
    * and unit.
    */
-  protected void derivativeScalePerAttribute(double[] grad,
-    double[] deltaHidden, Instance inst, int unitIndex) {
+  protected void derivativeScalePerAttribute(double[] grad, double[] deltaHidden, Instance inst, int unitIndex) {
 
     double constant = deltaHidden[unitIndex];
     int offsetC = OFFSET_CENTERS + (unitIndex * m_numAttributes);
@@ -700,32 +698,22 @@ public abstract class RBFModel extends RandomizableClassifier implements Technic
     double attWeight = 1.0;
     for (int j = 0; j < m_classIndex; j++) {
       double diff = (inst.value(j) - m_RBFParameters[offsetC + j]);
-      double scalePart = (m_RBFParameters[offsetS + j] * m_RBFParameters[offsetS
-        + j]);
+      double scalePart = (m_RBFParameters[offsetS + j] * m_RBFParameters[offsetS + j]);
       if (m_useAttributeWeights) {
-        attWeight = m_RBFParameters[OFFSET_ATTRIBUTE_WEIGHTS + j]
-          * m_RBFParameters[OFFSET_ATTRIBUTE_WEIGHTS + j];
-        grad[OFFSET_ATTRIBUTE_WEIGHTS + j] -= m_RBFParameters[OFFSET_ATTRIBUTE_WEIGHTS
-          + j]
-          * constant * diff * diff / scalePart;
+        attWeight = m_RBFParameters[OFFSET_ATTRIBUTE_WEIGHTS + j] * m_RBFParameters[OFFSET_ATTRIBUTE_WEIGHTS + j];
+        grad[OFFSET_ATTRIBUTE_WEIGHTS + j] -= m_RBFParameters[OFFSET_ATTRIBUTE_WEIGHTS + j] * constant * diff * diff / scalePart;
       }
-      grad[offsetS + j] += constant * attWeight * diff * diff
-        / (scalePart * m_RBFParameters[offsetS + j]);
+      grad[offsetS + j] += constant * attWeight * diff * diff / (scalePart * m_RBFParameters[offsetS + j]);
       grad[offsetC + j] += constant * attWeight * diff / scalePart;
     }
     for (int j = m_classIndex + 1; j < m_numAttributes; j++) {
       double diff = (inst.value(j) - m_RBFParameters[offsetC + j]);
-      double scalePart = (m_RBFParameters[offsetS + j] * m_RBFParameters[offsetS
-        + j]);
+      double scalePart = (m_RBFParameters[offsetS + j] * m_RBFParameters[offsetS + j]);
       if (m_useAttributeWeights) {
-        attWeight = m_RBFParameters[OFFSET_ATTRIBUTE_WEIGHTS + j]
-          * m_RBFParameters[OFFSET_ATTRIBUTE_WEIGHTS + j];
-        grad[OFFSET_ATTRIBUTE_WEIGHTS + j] -= m_RBFParameters[OFFSET_ATTRIBUTE_WEIGHTS
-          + j]
-          * constant * diff * diff / scalePart;
+        attWeight = m_RBFParameters[OFFSET_ATTRIBUTE_WEIGHTS + j] * m_RBFParameters[OFFSET_ATTRIBUTE_WEIGHTS + j];
+        grad[OFFSET_ATTRIBUTE_WEIGHTS + j] -= m_RBFParameters[OFFSET_ATTRIBUTE_WEIGHTS + j] * constant * diff * diff / scalePart;
       }
-      grad[offsetS + j] += constant * attWeight * diff * diff
-        / (scalePart * m_RBFParameters[offsetS + j]);
+      grad[offsetS + j] += constant * attWeight * diff * diff / (scalePart * m_RBFParameters[offsetS + j]);
       grad[offsetC + j] += constant * attWeight * diff / scalePart;
     }
   }
@@ -784,8 +772,7 @@ public abstract class RBFModel extends RandomizableClassifier implements Technic
         sumSquaredDiff = sumSquaredDiffOneScale(m_RBFParameters[OFFSET_SCALES],
           inst, i);
         break;
-      case USE_SCALE_PER_UNIT_AND_ATTRIBUTE: { // One scale parameter for each
-                                               // unit and attribute
+      case USE_SCALE_PER_UNIT_AND_ATTRIBUTE: { // One scale parameter for each unit and attribute
         sumSquaredDiff = sumSquaredDiffScalePerAttribute(inst, i);
         break;
       }
