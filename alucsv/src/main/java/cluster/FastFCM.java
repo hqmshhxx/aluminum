@@ -860,6 +860,9 @@ public class FastFCM extends RandomizableClusterer implements
 	public Instances[] getClusters(){
 		return mClusters;
 	}
+	public double getFunObjValue(){
+		return m_ObjFunValue;
+	}
 	@Override
 	public void setOptions(String[] options) throws Exception {
 		// TODO Auto-generated method stub

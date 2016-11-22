@@ -9,21 +9,20 @@ import weka.core.Utils;
 public class SphereBeeImpr {
 
 	/** The number of colony size (employed bees+onlooker bees) */
-	int NP = 40;
+	int NP = 200;
 	/** The number of food sources equals the half of the colony size */
 	int foodNum = NP / 2;
 	/**
 	 * A food source which could not be improved through "limit" trials is
 	 * abandoned by its employed bee
 	 */
-	int limit = 200;
+	int limit = 100;
 	/** The number of cycles for foraging {a stopping criteria} */
-	int maxCycle = 2000;
-	int mCycle = 0;
+	int maxCycle = 1000;
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
-	int dimension = 100;
+	int dimension = 20;
 	/** lower bound of the parameters. */
 	double lb = -100.0;
 	/**
@@ -34,6 +33,7 @@ public class SphereBeeImpr {
 
 	/** Algorithm can be run many times in order to see its robustness */
 	int runtime = 30;
+	int mCycle = 0;
 
 	/**
 	 * foods is the population of food sources. Each row of foods matrix is a

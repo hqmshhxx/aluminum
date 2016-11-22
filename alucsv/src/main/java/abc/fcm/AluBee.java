@@ -12,16 +12,16 @@ import weka.core.Utils;
 public class AluBee {
 
 	/** The number of colony size (employed bees+onlooker bees) */
-	int NP = 40;
+	int NP = 200;
 	/** The number of food sources equals the half of the colony size */
 	int foodNum = NP / 2;
 	/**
 	 * A food source which could not be improved through "limit" trials is
 	 * abandoned by its employed bee
 	 */
-	int limit = 50;
+	int limit = 100;
 	/** The number of cycles for foraging {a stopping criteria} */
-	int maxCycle = 200;
+	int maxCycle = 1000;
 	int mCycle = 0;
 
 	/** Problem specific variables */
@@ -177,7 +177,7 @@ public class AluBee {
 					total += Math.pow(foods[index][j] - foods[i][j], 2);
 				}
 			}
-			if(total < 1.5*mean){
+			if(total < mean){
 				neighbors.add(foods[i]);
 			}
 		}

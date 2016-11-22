@@ -9,21 +9,21 @@ import weka.core.Utils;
 public class RasBeeImpr {
 
 	/** The number of colony size (employed bees+onlooker bees) */
-	int NP = 40;
+	int NP = 200;
 	/** The number of food sources equals the half of the colony size */
 	int foodNum = NP / 2;
 	/**
 	 * A food source which could not be improved through "limit" trials is
 	 * abandoned by its employed bee
 	 */
-	int limit = 200;
+	int limit = 100;
 	/** The number of cycles for foraging {a stopping criteria} */
-	int maxCycle = 2000;
+	int maxCycle = 1000;
 	int mCycle = 0;
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
-	int dimension = 100;
+	int dimension = 20;
 	/** lower bound of the parameters. */
 	double lb = -5.12;
 	/**
