@@ -3,12 +3,7 @@ package abc.fcm;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Random;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import weka.classifiers.rules.DecisionTableHashKey;
 import weka.clusterers.NumberOfClustersRequestable;
@@ -1147,7 +1142,7 @@ public class AluFCM extends RandomizableClusterer implements
 				}
 			}
 		}
-
+		temp.append(m_ObjFunValue);
 		temp.append("\n\n");
 		return temp.toString();
 	}

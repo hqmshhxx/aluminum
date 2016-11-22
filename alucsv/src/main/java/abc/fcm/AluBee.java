@@ -19,9 +19,9 @@ public class AluBee {
 	 * A food source which could not be improved through "limit" trials is
 	 * abandoned by its employed bee
 	 */
-	int limit = 100;
+	int limit = 20;
 	/** The number of cycles for foraging {a stopping criteria} */
-	int maxCycle = 1000;
+	int maxCycle = 200;
 	int mCycle = 0;
 
 	/** Problem specific variables */
@@ -36,7 +36,7 @@ public class AluBee {
 	double ub = 1;
 
 	/** Algorithm can be run many times in order to see its robustness */
-	int runtime = 30;
+	int runtime = 20;
 
 	/**
 	 * foods is the population of food sources. Each row of foods matrix is a
