@@ -144,7 +144,7 @@ public class AluFCM extends RandomizableClusterer implements
 	/**
 	 * holds the fuzzifier 模糊算子(加权指数)
 	 */
-	private double m_fuzzifier = 2;
+	private double m_fuzzifier = 3;
 
 	/**
 	 * Assignments obtained.(cluster indexes).
@@ -155,7 +155,7 @@ public class AluFCM extends RandomizableClusterer implements
 	private Instances instances;
 
 	public AluFCM() {
-		m_SeedDefault = 10;
+		m_SeedDefault = (int)Math.random()*10;
 		setSeed(m_SeedDefault);
 	}
 
@@ -277,7 +277,6 @@ public class AluFCM extends RandomizableClusterer implements
 		m_DistanceFunction.setInstances(instances);
 		memberShip = new Matrix(instances.numInstances(), m_NumClusters);
 		mClusters = new Instances[m_NumClusters];
-		m_ClusterSizes = new double[m_NumClusters];
 		m_Assignments = new int[instances.numInstances()];
 		m_squaredErrors = new double[m_NumClusters];
 		m_ClusterNominalCounts = new double[m_NumClusters][instances
@@ -388,6 +387,7 @@ public class AluFCM extends RandomizableClusterer implements
 	}
 
 	public void updateClustersInfo(Instances instances) {
+		m_ClusterSizes = new double[m_NumClusters];
 		for (int i = 0; i < m_NumClusters; i++) {
 			mClusters[i] = new Instances(instances, 0);
 		}
@@ -934,7 +934,8 @@ public class AluFCM extends RandomizableClusterer implements
 						+ Utils.sum(m_squaredErrors));
 			}
 		}
-
+		temp.append("\nobjValue is "+m_ObjFunValue);
+		temp.append("\n");
 		if (!m_dontReplaceMissing) {
 			temp.append("\nMissing values globally replaced with mean/mode");
 		}
@@ -1142,7 +1143,7 @@ public class AluFCM extends RandomizableClusterer implements
 				}
 			}
 		}
-		temp.append(m_ObjFunValue);
+		
 		temp.append("\n\n");
 		return temp.toString();
 	}

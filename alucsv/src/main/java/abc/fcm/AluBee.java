@@ -19,14 +19,14 @@ public class AluBee {
 	 * A food source which could not be improved through "limit" trials is
 	 * abandoned by its employed bee
 	 */
-	int limit = 20;
+	int limit = 5;
 	/** The number of cycles for foraging {a stopping criteria} */
-	int maxCycle = 200;
+	int maxCycle = 50;
 	int mCycle = 0;
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
-	int dimension = 4*3;
+	int dimension = 11*3;
 	/** lower bound of the parameters. */
 	double lb = 0;
 	/**
@@ -90,7 +90,7 @@ public class AluBee {
 	/**
 	 * Holds the squared errors for all clusters. 平方误差
 	 */
-	double squaredError=0;;
+	double squaredError=0;
 
 	/** Parameters of the optimum solution */
 	double globalParams[] = new double[dimension];
@@ -214,6 +214,10 @@ public class AluBee {
 					globalParams[j] = foods[i][j];
 			}
 		}
+		
+	}
+	public void updateClusterInfo(){
+		int k = Utils.minIndex(funVal);
 		for(int i=0;i<dimension; i++){
 			solution[i]=foods[k][i];
 		}
@@ -464,9 +468,6 @@ public class AluBee {
 				trial[i] = trial[i] + 1;
 			}
 		}
-		
-		
-		
 	}
 	
 	/**
@@ -493,7 +494,6 @@ public class AluBee {
 			Instance ins = new DenseInstance(1.0,val);
 			centroids.add(ins);
 		}
-	
 		return centroids;
 
 	}

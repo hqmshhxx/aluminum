@@ -14,7 +14,7 @@ import cluster.LoadData;
 public class AluBeeFCM {
 	
 	private int threadNum = 4;
-	private int runCount = 30;
+	private int runCount = 20;
 //	private int maxCycle = 1000;
 	private Instances instances;
 	private ExecutorService threadPool ;
@@ -49,6 +49,7 @@ public class AluBeeFCM {
 			for (int run = start; run < end; run++) {
 				bee.initial();
 				bee.memorizeBestSource();
+				System.out.println("globalMin = "+bee.globalMin);
 				for (int iter = 0; iter < bee.maxCycle; iter++) {
 					bee.mCycle = iter+1;
 					bee.sendEmployedBees();
@@ -57,8 +58,9 @@ public class AluBeeFCM {
 					bee.calculateFcm();
 					bee.memorizeBestSource();
 					bee.sendScoutBees();
-					System.out.println("iter="+iter);
+					System.out.println("iter="+iter+" globalMin="+bee.globalMin);
 				}
+				bee.updateClusterInfo();
 				System.out.println("globalMin = "+bee.globalMin);
 				System.out.println(fcm.toString());
 				results[run-start] = bee.globalMin;
@@ -77,8 +79,8 @@ public class AluBeeFCM {
 			if (i == threadNum - 1) {
 				end = runCount;
 			}
-			Instances ins = new Instances(instances);
-			InnerBee ib = new InnerBee( start, end,ins);
+//			Instances ins = new Instances(instances);
+			InnerBee ib = new InnerBee( start, end,instances);
 			ib.setData();
 			results.add(threadPool.submit(ib));
 		}
@@ -102,7 +104,7 @@ public class AluBeeFCM {
 		int minIndex = Utils.minIndex(array);
 		double max = array[maxIndex];
 		double min = array[minIndex];
-
+		mean = Utils.sum(array);
 		mean = mean / runCount;
 
 		double stdError = 0;
@@ -117,7 +119,7 @@ public class AluBeeFCM {
 	
 	public static void main(String[] args){
 		AluBeeFCM abf = new AluBeeFCM();
-		String path = "/home/ucas/software/aluminum-electrolysis/iris-normalize-noClass.arff";
+		String path = "/home/ucas/software/aluminum-electrolysis/winequality-white-normalize-noClass.arff";
 		LoadData ld = new LoadData();
 		abf.setData(ld.loadData(path));
 		abf.buildCluster();

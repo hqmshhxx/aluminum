@@ -8,7 +8,7 @@ import weka.core.Utils;
 public class AluFCM {
 
 	private FastFCM fcm;
-	private int maxCycle = 30;
+	private int maxCycle = 20;
 	private double[] results = new double[maxCycle];
 	private Instances instances;
 	
@@ -21,7 +21,8 @@ public class AluFCM {
 	}
 	
 	public void buildCluster() throws Exception{
-		fcm.setMaxIterations(200);
+		fcm.setMaxIterations(100);
+		fcm.setNumClusters(6);
 		Random rand = new Random();
 		for(int i =0; i< maxCycle; i++){
 			fcm.setSeed(rand.nextInt(maxCycle));
@@ -49,7 +50,7 @@ public class AluFCM {
 	}
 	public static void main(String[] args){
 		AluFCM af = new AluFCM();
-		String path = "/home/ucas/software/aluminum-electrolysis/iris-normalize-noClass.arff";
+		String path = "/home/ucas/software/aluminum-electrolysis/glass-normalize-noClass.arff";
 		LoadData ld = new LoadData();
 		af.setData(ld.loadData(path));
 		try {
