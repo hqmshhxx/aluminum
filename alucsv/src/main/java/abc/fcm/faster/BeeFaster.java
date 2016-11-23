@@ -1,18 +1,23 @@
-package abc.fcm;
+package abc.fcm.faster;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
+import cluster.LoadData;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
 
-public class AluBee {
+public class BeeFaster {
 
 	/** The number of colony size (employed bees+onlooker bees) */
-	int NP = 200;
+	int NP = 100;
 	/** The number of food sources equals the half of the colony size */
 	int foodNum = NP / 2;
 	/**
@@ -26,7 +31,7 @@ public class AluBee {
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
-	int dimension = 11*3;
+	int dimension = 13*3;
 	/** lower bound of the parameters. */
 	double lb = 0;
 	/**
@@ -68,25 +73,9 @@ public class AluBee {
 	 */
 	double prob[] = new double[foodNum];
 
-	/**
-	 * New solution (neighbour) produced by
-	 * v_{ij}=x_{ij}+\phi_{ij}*(x_{kj}-x_{ij}) j is a randomly chosen parameter
-	 * and k is a randomlu chosen solution different from i
-	 */
-	double solution[] = new double[dimension];
-
-	/** Objective function value of new solution */
-	double objValSol;
-	/** Fitness value of new solution */
-	double fitnessSol;
-	/**
-	 * param2change corrresponds to j, neighbour corresponds to k in equation
-	 * v_{ij}=x_{ij}+\phi_{ij}*(x_{kj}-x_{ij})
-	 */
-	int neighbour, param2change;
 
 	/** Optimum solution obtained by ABC algorithm */
-	double globalMin = 0;
+	double globalMin = Double.MAX_VALUE;
 	/**
 	 * Holds the squared errors for all clusters. 平方误差
 	 */
@@ -96,26 +85,34 @@ public class AluBee {
 	double globalParams[] = new double[dimension];
 	/** globalMins holds the globalMin of each run in multiple runs */
 	double globalMins[] = new double[runtime];
-	/** a random number in the range [0,1) */
-	double r;
+
 	/**
 	 * the mean Euclidean distance between X_{m} and the rest  of solutions
 	 */
 	double mean = 0;
 	
 	int centroidNum = 3;
+	private int threadNum =4;
+	private ExecutorService threadPool = null;
 	
-	private AluFCM fcm;
+	private FCMFaster fcm;
 	
 	protected Instances data;
 	
-	public AluBee(){}
+	public BeeFaster(){}
 	
-	public AluBee(AluFCM fcm){
+	public BeeFaster(FCMFaster fcm){
 		this.fcm = fcm;
+		startPool();
 	}
 	public void setData(Instances data){
 		this.data = data;
+	}
+	public void startPool(){
+		if(threadPool != null){
+			threadPool.shutdownNow();
+		}
+		threadPool = Executors.newFixedThreadPool(threadNum);
 	}
 	/*
 	 * Variables are initialized in the range [lb,ub]. If each parameter has
@@ -124,6 +121,7 @@ public class AluBee {
 	/* Counters of food sources are also initialized in this function */
 
 	public void init(int index) {
+		double[] solution = new double[dimension];
 		for (int j = 0; j < dimension; j++) {
 			foods[index][j] = Math.random() * (ub - lb) + lb;
 			solution[j] = foods[index][j];
@@ -132,16 +130,46 @@ public class AluBee {
 		fitness[index] = calculateFitness(funVal[index]);
 		trial[index] = 0;
 	}
-
+	private class InitTask implements Callable<Boolean>{
+		private int start;
+		private int end;
+		public InitTask(int start,int end){
+			this.start=start;
+			this.end = end;
+		}
+		public Boolean call(){
+			double[] solution = new double[dimension];
+			for (int i = start; i < end; i++) {
+				for (int j = 0; j < dimension; j++) {
+					foods[i][j] = Math.random() * (ub - lb) + lb;
+					solution[j] = foods[i][j];
+				}
+				funVal[i] = calculateFunction(solution);
+				fitness[i] = calculateFitness(funVal[i]);
+				trial[i] = 0;
+			}
+			return true;
+		}
+	}
 	/* All food sources are initialized */
 	public void initial() {
-		int i;
-		for (i = 0; i < foodNum; i++) {
-			init(i);
+		int numPerTask = foodNum / threadNum;
+		List<Future<Boolean>> results = new ArrayList<Future<Boolean>>();
+		for (int i = 0; i < threadNum; i++) {
+			int start = i * numPerTask;
+			int end = start + numPerTask;
+			if (i == threadNum - 1) {
+				end = foodNum;
+			}
+			results.add(threadPool.submit(new InitTask( start, end)));
 		}
-		globalMin = funVal[0];
-		for (i = 0; i < dimension; i++)
-			globalParams[i] = foods[0][i];
+		try{
+			for(Future<Boolean> task : results){
+				task.get();
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 
 
@@ -214,10 +242,10 @@ public class AluBee {
 					globalParams[j] = foods[i][j];
 			}
 		}
-		
 	}
 	public void updateClusterInfo(){
 		int k = Utils.minIndex(funVal);
+		double[] solution = new double[dimension];
 		for(int i=0;i<dimension; i++){
 			solution[i]=foods[k][i];
 		}
@@ -226,43 +254,42 @@ public class AluBee {
 		double[] errors = fcm.buildClusterErrors();
 		squaredError = Utils.sum(errors);
 	}
-
-	
-	/**
-	 * Employed Bee Phase
-	 */
-	public void sendEmployedBees() {
-		int i, j;
+private class EmployBeeTask implements Callable<Boolean>{
+	private int start;
+	private int end;
+	public EmployBeeTask(int start,int end){
+		this.start=start;
+		this.end = end;
+	}
+	public Boolean call(){
 		Random rand = new Random();
-		for (i = 0; i < foodNum; i++) {
+		for (int i = start; i < end; i++) {
 			/* The parameter to be changed is determined randomly */
-			param2change = rand.nextInt(dimension);
-
+			int dj = rand.nextInt(dimension);
 			/*
 			 * A randomly chosen solution is used in producing a mutant solution
 			 * of the solution i
 			 */
-			neighbour = rand.nextInt(foodNum);
-
-			for (j = 0; j < dimension; j++) {
+			int foodi = rand.nextInt(foodNum);
+			double[] solution = new double[dimension];
+			for (int j = 0; j < dimension; j++) {
 				solution[j] = foods[i][j];
 			}
 			/* v_{ij}=x_{ij}+\phi_{ij}*(x_{kj}-x_{ij}) */
-			r = rand.nextDouble() * 2 - 1;
-			solution[param2change] = foods[i][param2change]
-					+ (foods[i][param2change] - foods[neighbour][param2change])
+			double r = rand.nextDouble() * 2 - 1;
+			solution[dj] = foods[i][dj]+ (foods[i][dj] - foods[foodi][dj])
 					* r*(1 + 1/(Math.exp(-maxCycle*1.0/mCycle)+1));
 
 			/*
 			 * if generated parameter value is out of boundaries, it is shifted
 			 * onto the boundaries
 			 */
-			if (solution[param2change] < lb)
-				solution[param2change] = lb;
-			if (solution[param2change] > ub)
-				solution[param2change] = ub;
-			objValSol = calculateFunction(solution);
-			fitnessSol = calculateFitness(objValSol);
+			if (solution[dj] < lb)
+				solution[dj] = lb;
+			if (solution[dj] > ub)
+				solution[dj] = ub;
+			double objValSol = calculateFunction(solution);
+			double fitnessSol = calculateFitness(objValSol);
 
 			/*
 			 * a greedy selection is applied between the current solution i and
@@ -276,7 +303,7 @@ public class AluBee {
 				 * counter of solution i
 				 * */
 				trial[i] = 0;
-				for (j = 0; j < dimension; j++)
+				for (int j = 0; j < dimension; j++)
 					foods[i][j] = solution[j];
 				funVal[i] = objValSol;
 				fitness[i] = fitnessSol;
@@ -288,9 +315,31 @@ public class AluBee {
 				trial[i] = trial[i] + 1;
 			}
 		}
-
-		/* end of employed bee phase */
-
+		return true;
+	}
+}
+	
+	/**
+	 * Employed Bee Phase
+	 */
+	public void sendEmployedBees() {
+		int numPerTask = foodNum / threadNum;
+		List<Future<Boolean>> results = new ArrayList<Future<Boolean>>();
+		for (int i = 0; i < threadNum; i++) {
+			int start = i * numPerTask;
+			int end = start + numPerTask;
+			if (i == threadNum - 1) {
+				end = foodNum;
+			}
+			results.add(threadPool.submit(new EmployBeeTask(start, end)));
+		}
+		try{
+			for(Future<Boolean> task : results){
+				task.get();
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 
 
@@ -307,7 +356,68 @@ public class AluBee {
 		}
 
 	}
+	private class OnlookerBeeTask implements Callable<Boolean>{
+		private int start;
+		private int end;
+		private int neighbour;
+		private Random rand;
+		public OnlookerBeeTask(int start,int end,int neighbour,Random rand){
+			this.start=start;
+			this.end = end;
+			this.neighbour = neighbour;
+			this.rand = rand;
+		}
+		public Boolean call(){
+			double[] solution = new double[dimension];
+					for (int j = 0; j < dimension; j++){
+						solution[j] = foods[start][j];
+					}
+					double[] bestNeighbor = calculateNeighborBest(start);
+					int minFIndex = Utils.minIndex(funVal);
+					
+					/* v_{ij}=x_{ij}+\phi_{ij}*(x_{kj}-x_{ij}) */
+					
+					double r = rand.nextDouble()-1;
+					solution[end] =  bestNeighbor[end]
+							+ (bestNeighbor[end] - foods[neighbour][end])* r+
+							rand.nextDouble()*1.5*(foods[minFIndex][end]-bestNeighbor[end]);
 
+					/*
+					 * if generated parameter value is out of boundaries, it is
+					 * shifted onto the boundaries
+					 */
+					if (solution[end] < lb)
+						solution[end] = lb;
+					if (solution[end] > ub)
+						solution[end] = ub;
+					double objValSol = calculateFunction(solution);
+					double fitnessSol = calculateFitness(objValSol);
+
+					/*
+					 * a greedy selection is applied between the current solution i
+					 * and its mutant
+					 */
+					if (fitnessSol > fitness[start]) {
+						/*
+						 * If the mutant solution is better than the current
+						 * solution i, replace the solution with the mutant and
+						 * reset the trial counter of solution i
+						 */
+						trial[start] = 0;
+						for (int j = 0; j < dimension; j++)
+							foods[start][j] = solution[j];
+						funVal[start] = objValSol;
+						fitness[start] = fitnessSol;
+					} else {
+						/*
+						 * if the solution i can not be improved, increase its trial
+						 * counter
+						 */
+						trial[start] = trial[start] + 1;
+					}
+					return true;
+				}
+	}
 	/** onlooker Bee Phase */
 	public void sendOnlookerBees() {
 
@@ -315,8 +425,9 @@ public class AluBee {
 		i = 0;
 		t = 0;
 		Random rand = new Random();
+		List<Future<Boolean>> results = new ArrayList<Future<Boolean>>();
 		while (t < foodNum) {
-			r = Math.random();
+			double r = Math.random();
 //			r = ((double) Math.random() * 32767 / ((double) (32767) + (double) (1)));
 			/*
 			 * choose a food source depending on its probability to be chosen
@@ -325,13 +436,13 @@ public class AluBee {
 				t++;
 
 				/* The parameter to be changed is determined randomly */
-				param2change = rand.nextInt(dimension);
+				int dj = rand.nextInt(dimension);
 
 				/*
 				 * A randomly chosen solution is used in producing a mutant
 				 * solution of the solution i
 				 */
-				neighbour = rand.nextInt(foodNum);
+				int neighbour = rand.nextInt(foodNum);
 
 				/*
 				 * Randomly selected solution must be different from the
@@ -341,57 +452,19 @@ public class AluBee {
 					// System.out.println(Math.random()*32767+"  "+32767);
 					neighbour = rand.nextInt(foodNum);
 				}
-				for (j = 0; j < dimension; j++)
-					solution[j] = foods[i][j];
-				double[] bestNeighbor = calculateNeighborBest(i);
-				int minFIndex = Utils.minIndex(funVal);
-				
-				/* v_{ij}=x_{ij}+\phi_{ij}*(x_{kj}-x_{ij}) */
-				
-				r = rand.nextDouble()-1;
-				solution[param2change] =  bestNeighbor[param2change]
-						+ (bestNeighbor[param2change] - foods[neighbour][param2change])* r+
-						rand.nextDouble()*1.5*(foods[minFIndex][param2change]-bestNeighbor[param2change]);
-
-				/*
-				 * if generated parameter value is out of boundaries, it is
-				 * shifted onto the boundaries
-				 */
-				if (solution[param2change] < lb)
-					solution[param2change] = lb;
-				if (solution[param2change] > ub)
-					solution[param2change] = ub;
-				objValSol = calculateFunction(solution);
-				fitnessSol = calculateFitness(objValSol);
-
-				/*
-				 * a greedy selection is applied between the current solution i
-				 * and its mutant
-				 */
-				if (fitnessSol > fitness[i]) {
-					/*
-					 * If the mutant solution is better than the current
-					 * solution i, replace the solution with the mutant and
-					 * reset the trial counter of solution i
-					 */
-					trial[i] = 0;
-					for (j = 0; j < dimension; j++)
-						foods[i][j] = solution[j];
-					funVal[i] = objValSol;
-					fitness[i] = fitnessSol;
-				} else {
-					/*
-					 * if the solution i can not be improved, increase its trial
-					 * counter
-					 */
-					trial[i] = trial[i] + 1;
-				}
+				results.add(threadPool.submit(new OnlookerBeeTask( i, dj,neighbour,rand)));
 			}
 			i++;
 			if (i == foodNum)
 				i = 0;
 		}/* while */
-
+		try{
+			for(Future<Boolean> task : results){
+				task.get();
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 		/* end of onlooker bee phase */
 	}
 
@@ -420,53 +493,83 @@ public class AluBee {
 		}
 		return result;
 	}
-	public  void calculateFcm(){
-		for(int i=0; i<foodNum; i++){
-			for (int u = 0; u < dimension; u++){
-				solution[u] = foods[i][u];
-			}
-			int k =0;
-			Instances centroids = arrayToInstances(solution);
-			fcm.setClusterCentroids(centroids);
-			Instances ins =fcm.buildCentroids();
-			for(int ii =0; ii<ins.numInstances();ii++){
-				Instance in = ins.get(ii);
-				for(int jj = 0;jj<in.numAttributes();jj++){
-					solution[k++]=in.value(jj);
+	private class CalFcmTask implements Callable<Boolean>{
+		private int start;
+		private int end;
+		public CalFcmTask(int start,int end){
+			this.start=start;
+			this.end = end;
+		}
+		public Boolean call(){
+			double[] solution = new double[dimension];
+		
+			for (int i = start; i < end; i++) {
+				for (int u = 0; u < dimension; u++){
+					solution[u] = foods[i][u];
+				}
+				int k =0;
+				Instances centroids = arrayToInstances(solution);
+				fcm.setClusterCentroids(centroids);
+				Instances ins =fcm.buildCentroids();
+				for(int ii =0; ii<ins.numInstances();ii++){
+					Instance in = ins.get(ii);
+					for(int jj = 0;jj<in.numAttributes();jj++){
+						solution[k++]=in.value(jj);
+					}
+				}
+	/*
+				if (solution[param2change] < lb)
+					solution[param2change] = lb;
+				if (solution[param2change] > ub)
+					solution[param2change] = ub;
+		*/
+				double objValSol = calculateFunction(solution);
+				double fitnessSol = calculateFitness(objValSol);
+
+				/*
+				 * a greedy selection is applied between the current solution i and
+				 * its mutant
+				 */
+				if (fitnessSol > fitness[i]) {
+
+					/**
+					 * If the mutant solution is better than the current solution i,
+					 * replace the solution with the mutant and reset the trial
+					 * counter of solution i
+					 * */
+					trial[i] = 0;
+					for (int j = 0; j < dimension; j++)
+						foods[i][j] = solution[j];
+					funVal[i] = objValSol;
+					fitness[i] = fitnessSol;
+				} else {
+					/*
+					 * if the solution i can not be improved, increase its trial
+					 * counter
+					 */
+					trial[i] = trial[i] + 1;
 				}
 			}
-/*
-			if (solution[param2change] < lb)
-				solution[param2change] = lb;
-			if (solution[param2change] > ub)
-				solution[param2change] = ub;
-	*/
-			objValSol = calculateFunction(solution);
-			fitnessSol = calculateFitness(objValSol);
-
-			/*
-			 * a greedy selection is applied between the current solution i and
-			 * its mutant
-			 */
-			if (fitnessSol > fitness[i]) {
-
-				/**
-				 * If the mutant solution is better than the current solution i,
-				 * replace the solution with the mutant and reset the trial
-				 * counter of solution i
-				 * */
-				trial[i] = 0;
-				for (int j = 0; j < dimension; j++)
-					foods[i][j] = solution[j];
-				funVal[i] = objValSol;
-				fitness[i] = fitnessSol;
-			} else {
-				/*
-				 * if the solution i can not be improved, increase its trial
-				 * counter
-				 */
-				trial[i] = trial[i] + 1;
+		return true;
+		}
+	}
+	public  void calculateFcm(){
+		int numPerTask = foodNum / threadNum;
+		List<Future<Boolean>> results = new ArrayList<Future<Boolean>>();
+		for (int i = 0; i < threadNum; i++) {
+			int start = i * numPerTask;
+			int end = start + numPerTask;
+			if (i == threadNum - 1) {
+				end = foodNum;
 			}
+			results.add(threadPool.submit(new CalFcmTask( start, end)));
+		}
+		try{
+			for(Future<Boolean> task : results){
+				task.get();
+			}
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 	}
 	
@@ -500,7 +603,16 @@ public class AluBee {
 
 	
 	public static void main(String[] args) {
-		AluBee bee = new AluBee();
+		String path = "dataset/House-normalize-noClass.arff";
+		LoadData ld = new LoadData();
+		FCMFaster fcm = new FCMFaster();
+		BeeFaster bee = new BeeFaster(fcm);
+		Instances instances = ld.loadData(path);
+		fcm.init(instances);
+		Instances in = new Instances(instances,0);
+		in.add(instances.instance(0));
+		bee.setData(in);
+		
 		int iter = 0;
 		int run = 0;
 		int j = 0;
@@ -513,9 +625,14 @@ public class AluBee {
 				bee.sendEmployedBees();
 				bee.calculateProbabilities();
 				bee.sendOnlookerBees();
+				bee.calculateFcm();
 				bee.memorizeBestSource();
 				bee.sendScoutBees();
+				System.out.println("iter="+iter+" globalMin="+bee.globalMin);
 			}
+			bee.updateClusterInfo();
+			System.out.println("globalMin = "+bee.globalMin);
+			System.out.println(fcm.toString());
 			bee.globalMins[run] = bee.globalMin;
 			mean = mean + bee.globalMin;
 		}

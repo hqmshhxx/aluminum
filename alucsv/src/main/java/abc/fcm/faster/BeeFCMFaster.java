@@ -1,4 +1,4 @@
-package abc.fcm;
+package abc.fcm.faster;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
@@ -11,9 +11,9 @@ import weka.core.Utils;
 import cluster.LoadData;
 
 
-public class AluBeeFCM {
+public class BeeFCMFaster {
 	
-	private int threadNum = 4;
+	private int threadNum = 1;
 	private int runCount = 20;
 //	private int maxCycle = 1000;
 	private Instances instances;
@@ -24,8 +24,8 @@ public class AluBeeFCM {
 		threadPool = Executors.newFixedThreadPool(threadNum);
 	}
 	public  class InnerBee implements Callable<double[]>{
-		private AluBee bee;
-		private AluFCM fcm;
+		private BeeFaster bee;
+		private FCMFaster fcm;
 		private int start;
 		private int end;
 		private double[] results;
@@ -35,8 +35,8 @@ public class AluBeeFCM {
 			this.start = start;
 			this.end = end;
 			results = new double[end - start];
-			fcm = new AluFCM();
-			bee = new AluBee(fcm);
+			fcm = new FCMFaster();
+			bee = new BeeFaster(fcm);
 			this.ins = instances;
 		}
 		public void setData(){
@@ -118,7 +118,7 @@ public class AluBeeFCM {
 	}
 	
 	public static void main(String[] args){
-		AluBeeFCM abf = new AluBeeFCM();
+		BeeFCMFaster abf = new BeeFCMFaster();
 		String path = "dataset/winequality-white-normalize-noClass.arff";
 		LoadData ld = new LoadData();
 		abf.setData(ld.loadData(path));
