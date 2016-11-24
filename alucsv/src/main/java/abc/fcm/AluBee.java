@@ -26,7 +26,7 @@ public class AluBee {
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
-	int dimension = 11*3;
+	int dimension = 9*6;
 	/** lower bound of the parameters. */
 	double lb = 0;
 	/**
@@ -86,7 +86,7 @@ public class AluBee {
 	int neighbour, param2change;
 
 	/** Optimum solution obtained by ABC algorithm */
-	double globalMin = 0;
+	double globalMin = Double.MAX_VALUE;
 	/**
 	 * Holds the squared errors for all clusters. 平方误差
 	 */
@@ -103,7 +103,7 @@ public class AluBee {
 	 */
 	double mean = 0;
 	
-	int centroidNum = 3;
+	int centroidNum = 6;
 	
 	private AluFCM fcm;
 	

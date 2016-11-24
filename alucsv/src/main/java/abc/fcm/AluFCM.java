@@ -46,7 +46,7 @@ public class AluFCM extends RandomizableClusterer implements
 	/**
 	 * number of clusters to generate. 产生聚类个数
 	 */
-	protected int m_NumClusters = 3;
+	protected int m_NumClusters = 6;
 	/**
 	 * Holds the initial start points, as supplied by the initialization method
 	 * used
