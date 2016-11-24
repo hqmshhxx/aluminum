@@ -654,3 +654,7 @@ private class EmployBeeTask implements Callable<Boolean>{
 				+ mean + " stdError=" + stdError);
 	}
 }
+/**
+ * House bee fcm maxFunVal=31.528247348395208 minFunVal=29.021876386511046 mean=29.52315057888788 stdError=1.0051032637721824
+ */
+ 
