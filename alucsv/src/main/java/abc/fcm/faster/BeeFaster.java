@@ -24,14 +24,14 @@ public class BeeFaster {
 	 * A food source which could not be improved through "limit" trials is
 	 * abandoned by its employed bee
 	 */
-	int limit = 4;
+	int limit = 10;
 	/** The number of cycles for foraging {a stopping criteria} */
-	int maxCycle = 20;
+	int maxCycle = 100;
 	int mCycle = 0;
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
-	int dimension = 11*3;
+	int dimension = 13*3;
 	/** lower bound of the parameters. */
 	double lb = 0;
 	/**
@@ -603,7 +603,8 @@ private class EmployBeeTask implements Callable<Boolean>{
 
 	
 	public static void main(String[] args) {
-		String path = "dataset/88.0-93.0-normalize-combine.arff";
+//		String path = "dataset/88.0-93.0-normalize-combine.arff";
+		String path = "dataset/House-normalize-noClass.arff";
 		LoadData ld = new LoadData();
 		FCMFaster fcm = new FCMFaster();
 		BeeFaster bee = new BeeFaster(fcm);
