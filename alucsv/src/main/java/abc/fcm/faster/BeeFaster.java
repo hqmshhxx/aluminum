@@ -31,7 +31,7 @@ public class BeeFaster {
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
-	int dimension = 13*3;
+	int dimension = 11*3;
 	/** lower bound of the parameters. */
 	double lb = 0;
 	/**
@@ -603,7 +603,7 @@ private class EmployBeeTask implements Callable<Boolean>{
 
 	
 	public static void main(String[] args) {
-		String path = "dataset/House-normalize-noClass.arff";
+		String path = "dataset/88.0-93.0-normalize-combine.arff";
 		LoadData ld = new LoadData();
 		FCMFaster fcm = new FCMFaster();
 		BeeFaster bee = new BeeFaster(fcm);
@@ -654,7 +654,5 @@ private class EmployBeeTask implements Callable<Boolean>{
 				+ mean + " stdError=" + stdError);
 	}
 }
-/**
- * House bee fcm maxFunVal=31.528247348395208 minFunVal=29.021876386511046 mean=29.52315057888788 stdError=1.0051032637721824
- */
+
  

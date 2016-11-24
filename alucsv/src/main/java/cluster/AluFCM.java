@@ -21,12 +21,13 @@ public class AluFCM {
 	}
 	
 	public void buildCluster() throws Exception{
-		fcm.setMaxIterations(100);
-		fcm.setNumClusters(6);
+		fcm.setMaxIterations(200);
+		fcm.setNumClusters(3);
 		Random rand = new Random();
 		for(int i =0; i< maxCycle; i++){
 			fcm.setSeed(rand.nextInt(maxCycle));
 			fcm.buildClusterer(instances);
+			System.out.println(fcm.toString());
 			results[i]=fcm.getFunObjValue();
 		}
 		double mean = 0;
@@ -50,7 +51,7 @@ public class AluFCM {
 	}
 	public static void main(String[] args){
 		AluFCM af = new AluFCM();
-		String path = "/home/ucas/software/aluminum-electrolysis/glass-normalize-noClass.arff";
+		String path = "dataset/winequality-white-normalize-noClass.arff";
 		LoadData ld = new LoadData();
 		af.setData(ld.loadData(path));
 		try {
