@@ -13,7 +13,7 @@ import cluster.LoadData;
 
 public class AluBeeFCM {
 	
-	private int threadNum = 4;
+	private int threadNum = 1;
 	private int runCount = 20;
 //	private int maxCycle = 1000;
 	private Instances instances;
@@ -119,7 +119,7 @@ public class AluBeeFCM {
 	
 	public static void main(String[] args){
 		AluBeeFCM abf = new AluBeeFCM();
-		String path = "dataset/winequality-white-normalize-noClass.arff";
+		String path = "/home/ucas/glass-normalize-noClass.arff";
 		LoadData ld = new LoadData();
 		abf.setData(ld.loadData(path));
 		abf.buildCluster();

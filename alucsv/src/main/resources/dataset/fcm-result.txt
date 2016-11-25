@@ -2,8 +2,21 @@ fcm 独立运行20次 maxIteration = 200;
 House  maxFunVal=38.83954986634517 minFunVal=38.83954986634513 mean=38.83954986634514 stdError=1.6913177807938494E-28
 winequality-white maxFunVal=67.5687819791641 minFunVal=67.56630459723921 mean=67.56719512898526 stdError=5.260297593787502E-7
 
-ABC-fcm 独立运行20次，maxCycle=20 limit =4 SN=50 fuzzifier = 3
+ABC-fcm 独立运行20次,maxCycle=20 limit =4 SN=50 fuzzifier = 3
 House  maxFunVal=31.528247348395208 minFunVal=29.021876386511046 mean=29.52315057888788 stdError=1.0051032637721824
 winequality-white maxFunVal=52.470888244177864 minFunVal=44.15731406751028 mean=45.164629911164646 stdError=5.941435563662538
 
 铝电解数据结果  maxFunVal=93.40556572896907 minFunVal=62.969456099522134 mean=65.79214672887463 stdError=72.19629943925328
+
+
+Classification:
+Daphnet Freezing of Gait
+Cardiotocography
+Breast Tissue
+Energy efficiency
+glass
+ILPD (Indian Liver Patient Dataset)
+Image Segmentation
+
+
+

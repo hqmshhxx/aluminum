@@ -85,12 +85,6 @@ public class BeeFaster {
 	double globalParams[] = new double[dimension];
 	/** globalMins holds the globalMin of each run in multiple runs */
 	double globalMins[] = new double[runtime];
-
-	/**
-	 * the mean Euclidean distance between X_{m} and the rest  of solutions
-	 */
-	double mean = 0;
-	
 	int centroidNum = 3;
 	private int threadNum =4;
 	private ExecutorService threadPool = null;
@@ -177,7 +171,7 @@ public class BeeFaster {
 	 * mean Euclidean distances between X_{m} and the rest of solutions.
 	 * @return
 	 */
-	public void calculateMean(int index){
+	public double  calculateMean(int index){
 		double sum=0;
 		for(int i=0; i< foodNum; i++){
 			double total = 0;
@@ -188,7 +182,7 @@ public class BeeFaster {
 			}
 			sum+=total;
 		}
-		mean= sum/(foodNum-1);
+		return  sum/(foodNum-1);
 	}
 	/**
 	 * calculate the  neighbor of  X_{m} and itself (N_{m})
@@ -197,7 +191,7 @@ public class BeeFaster {
 	 */
 	public List<double[]> calculateNeighbor(int index){
 		List<double[]> neighbors = new ArrayList<>();
-		calculateMean(index);
+		double mean = calculateMean(index);
 		for(int i=0; i<foodNum; i++){
 			double total =0;
 			if(index !=i){
