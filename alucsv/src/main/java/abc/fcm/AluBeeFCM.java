@@ -14,7 +14,7 @@ import cluster.LoadData;
 public class AluBeeFCM {
 	
 	private int threadNum = 1;
-	private int runCount = 20;
+	private int runCount = 1;
 //	private int maxCycle = 1000;
 	private Instances instances;
 	private ExecutorService threadPool ;
@@ -49,7 +49,6 @@ public class AluBeeFCM {
 			for (int run = start; run < end; run++) {
 				bee.initial();
 				bee.memorizeBestSource();
-				System.out.println("globalMin = "+bee.globalMin);
 				for (int iter = 0; iter < bee.maxCycle; iter++) {
 					bee.mCycle = iter+1;
 					bee.sendEmployedBees();

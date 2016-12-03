@@ -51,7 +51,7 @@ public class AluFCM {
 	}
 	public static void main(String[] args){
 		AluFCM af = new AluFCM();
-		String path = "dataset/winequality-white-normalize-noClass.arff";
+		String path = "dataset/88.0-93.0-normalize-combine.arff";
 		LoadData ld = new LoadData();
 		af.setData(ld.loadData(path));
 		try {

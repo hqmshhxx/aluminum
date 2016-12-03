@@ -31,7 +31,7 @@ public class BeeFaster {
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
-	int dimension = 13*3;
+	int dimension = 6*3;
 	/** lower bound of the parameters. */
 	double lb = 0;
 	/**
@@ -41,7 +41,7 @@ public class BeeFaster {
 	double ub = 1;
 
 	/** Algorithm can be run many times in order to see its robustness */
-	int runtime = 20;
+	int runtime = 1;
 
 	/**
 	 * foods is the population of food sources. Each row of foods matrix is a
@@ -86,7 +86,7 @@ public class BeeFaster {
 	/** globalMins holds the globalMin of each run in multiple runs */
 	double globalMins[] = new double[runtime];
 	int centroidNum = 3;
-	private int threadNum =4;
+	private int threadNum = 1;
 	private ExecutorService threadPool = null;
 	
 	private FCMFaster fcm;
@@ -227,11 +227,9 @@ public class BeeFaster {
 	}
 	/** The best food source is memorized */
 	public void memorizeBestSource() {
-		int k=0;
 		for (int i = 0; i < foodNum; i++) {
 			if (funVal[i] < globalMin) {
 				globalMin = funVal[i];
-				k=i;
 				for (int j = 0; j < dimension; j++)
 					globalParams[j] = foods[i][j];
 			}
@@ -597,8 +595,8 @@ private class EmployBeeTask implements Callable<Boolean>{
 
 	
 	public static void main(String[] args) {
-//		String path = "dataset/88.0-93.0-normalize-combine.arff";
-		String path = "dataset/House-normalize-noClass.arff";
+		String path = "dataset/88.0-93.0-normalize-combine.arff";
+//		String path = "dataset/House-normalize-noClass.arff";
 		LoadData ld = new LoadData();
 		FCMFaster fcm = new FCMFaster();
 		BeeFaster bee = new BeeFaster(fcm);

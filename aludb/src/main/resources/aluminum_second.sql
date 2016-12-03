@@ -29,4 +29,4 @@ insert into second (jialiaoliang,jialiaocishu,gongzuoshidianya,zaosheng,yangjixi
 dianjiewendu,fenzibi,alfjialiaoshiji,lvshuiping,dianjiezhishuiping,fehanliang,sihanliang,shijichulvliang,dianliuxiaolv,
 class) select jialiaoliang,jialiaocishu,gongzuoshidianya,zaosheng,yangjixingchengri,yangjixingchengdunlv,
 dianjiewendu,fenzibi,alfjialiaoshiji,lvshuiping,dianjiezhishuiping,fehanliang,sihanliang,shijichulvliang,dianliuxiaolv,
-class from first where caoid < 435 and class is not null;
+class from first where caoxing = '正常' and class is not null;

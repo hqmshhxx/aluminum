@@ -1,13 +1,45 @@
 fcm 独立运行20次 maxIteration = 200;
 House  maxFunVal=38.83954986634517 minFunVal=38.83954986634513 mean=38.83954986634514 stdError=1.6913177807938494E-28
 winequality-white maxFunVal=67.5687819791641 minFunVal=67.56630459723921 mean=67.56719512898526 stdError=5.260297593787502E-7
+glass objFunValue=1.427994124315997  Incorrectly clustered instances :	123.0	 57.4766 %
+铝电解数据 
+maxFunVal=15.128157378044108 minFunVal=15.128157377957166 mean=15.128157377965522 stdError=5.5074256965941905E-22
+Number of iterations: 200	the seed: 6
+Within cluster sum of squared errors: 0.43882714729647465
+Final cluster centroids:
+                                  Cluster#
+Attribute             Full Data          0          1          2
+                        (300.0)     (67.0)    (111.0)    (122.0)
+================================================================
+gongzuoshidianya          0.555     0.5598     0.5676     0.5341
+dianjiewendu             0.4572     0.4808      0.495     0.3927
+fenzibi                  0.5623     0.5704     0.5886     0.5259
+alfjialiaoshiji          0.3394     0.3668     0.4527     0.2021
+lvshuiping               0.6903     0.6897     0.6793     0.7067
+dianjiezhishuiping       0.6279     0.6172     0.6458     0.6285
 
-ABC-fcm 独立运行20次,maxCycle=20 limit =4 SN=50 fuzzifier = 3
-House  maxFunVal=31.528247348395208 minFunVal=29.021876386511046 mean=29.52315057888788 stdError=1.0051032637721824
-winequality-white maxFunVal=52.470888244177864 minFunVal=44.15731406751028 mean=45.164629911164646 stdError=5.941435563662538
 
-铝电解数据结果  maxFunVal=93.40556572896907 minFunVal=62.969456099522134 mean=65.79214672887463 stdError=72.19629943925328
+objFunValue=15.12815737795733
 
+
+Final cluster centroids:
+                                  Cluster#
+Attribute             Full Data          0          1          2
+                        (300.0)     (67.0)    (111.0)    (122.0)
+================================================================
+gongzuoshidianya         4.0063     4.0076     4.0097     4.0007
+dianjiewendu           950.8867   951.5015   951.8696   949.2114
+fenzibi                  2.4999     2.5051     2.5167     2.4765
+alfjialiaoshiji          9.8433     10.637    13.1277      5.861
+lvshuiping             264.7333   264.6615   263.3067   266.8754
+dianjiezhishuiping     191.6333   190.2403   193.9602   191.7003
+
+Breast Tissue 有效果，但不明显
+
+
+铝电解数据结果  
+Within cluster sum of squared errors: 0.4827687757801394
+objValue is 5.094753543636474
 
 Classification:
 Daphnet Freezing of Gait

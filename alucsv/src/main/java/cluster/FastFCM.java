@@ -148,7 +148,7 @@ public class FastFCM extends RandomizableClusterer implements
 	/**
 	 * holds the fuzzifier 模糊算子(加权指数)
 	 */
-	private double m_fuzzifier = 3;
+	private double m_fuzzifier = 2;
 
 	/**
 	 * Assignments obtained.(cluster indexes).

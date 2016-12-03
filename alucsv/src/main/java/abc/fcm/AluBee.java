@@ -19,9 +19,9 @@ public class AluBee {
 	 * A food source which could not be improved through "limit" trials is
 	 * abandoned by its employed bee
 	 */
-	int limit = 4;
+	int limit = 50;
 	/** The number of cycles for foraging {a stopping criteria} */
-	int maxCycle = 20;
+	int maxCycle = 1000;
 	int mCycle = 0;
 
 	/** Problem specific variables */
@@ -205,16 +205,13 @@ public class AluBee {
 	}
 	/** The best food source is memorized */
 	public void memorizeBestSource() {
-		int k=0;
 		for (int i = 0; i < foodNum; i++) {
 			if (funVal[i] < globalMin) {
 				globalMin = funVal[i];
-				k=i;
 				for (int j = 0; j < dimension; j++)
 					globalParams[j] = foods[i][j];
 			}
 		}
-		
 	}
 	public void updateClusterInfo(){
 		int k = Utils.minIndex(funVal);
