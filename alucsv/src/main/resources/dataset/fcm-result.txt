@@ -1,7 +1,60 @@
 fcm 独立运行20次 maxIteration = 200;
-House  maxFunVal=38.83954986634517 minFunVal=38.83954986634513 mean=38.83954986634514 stdError=1.6913177807938494E-28
-winequality-white maxFunVal=67.5687819791641 minFunVal=67.56630459723921 mean=67.56719512898526 stdError=5.260297593787502E-7
-glass objFunValue=1.427994124315997  Incorrectly clustered instances :	123.0	 57.4766 %
+Breast Tissue :attr=10:instances=106:classNum=6
+Within cluster sum of squared errors: 0.93308615211072
+objFunValue=3.7958364817828403
+Incorrectly clustered instances :	57.0	 53.7736 %
+
+breast-cancer-wisconsin:attr=9:instances=699:classNum=2
+Within cluster sum of squared errors: 0.6110413665641314
+objFunValue=234.61853616245017
+Incorrectly clustered instances :	32.0	  4.578  %
+
+
+heart-disease:attr=14:instances=303:classNum=5
+Within cluster sum of squared errors: 5.237604013715022
+objFunValue=89.2538908945568
+Incorrectly clustered instances :	159.0	 52.4752 %
+
+
+segmentation class 7
+pima class 2
+bupa class 2
+winequality-white
+
+ABCFCM 
+Breast Tissue 有效果，但不明显
+Within cluster sum of squared errors: 0.8552689992095717
+objFunValue=3.6575837095715515
+Incorrectly clustered instances :	51.0	 48.1132 %
+
+
+
+heart-disease:attr=14:instances=303:classNum=5
+Within cluster sum of squared errors: 5.244451101518039
+objFunValue=89.25341248596942
+Incorrectly clustered instances :	157.0	 51.8152 %
+
+segmentation 
+pima
+bupa
+winequality-white
+
+
+铝电解数据结果  
+Within cluster sum of squared errors: 0.4827687757801394
+objValue is 5.094753543636474
+
+Classification:
+Daphnet Freezing of Gait
+Cardiotocography
+Breast Tissue
+Energy efficiency
+glass
+ILPD (Indian Liver Patient Dataset)
+Image Segmentation
+
+
+
 铝电解数据 
 maxFunVal=15.128157378044108 minFunVal=15.128157377957166 mean=15.128157377965522 stdError=5.5074256965941905E-22
 Number of iterations: 200	the seed: 6
@@ -33,22 +86,5 @@ fenzibi                  2.4999     2.5051     2.5167     2.4765
 alfjialiaoshiji          9.8433     10.637    13.1277      5.861
 lvshuiping             264.7333   264.6615   263.3067   266.8754
 dianjiezhishuiping     191.6333   190.2403   193.9602   191.7003
-
-Breast Tissue 有效果，但不明显
-
-
-铝电解数据结果  
-Within cluster sum of squared errors: 0.4827687757801394
-objValue is 5.094753543636474
-
-Classification:
-Daphnet Freezing of Gait
-Cardiotocography
-Breast Tissue
-Energy efficiency
-glass
-ILPD (Indian Liver Patient Dataset)
-Image Segmentation
-
 
 
