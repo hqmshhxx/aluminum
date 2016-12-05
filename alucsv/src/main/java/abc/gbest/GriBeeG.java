@@ -4,7 +4,7 @@ import java.util.Random;
 
 import weka.core.Utils;
 
-public class SphereBeeG {
+public class GriBeeG {
 
 	/** The number of colony size (employed bees+onlooker bees) */
 	int NP = 200;
@@ -22,12 +22,12 @@ public class SphereBeeG {
 	/** The number of parameters of the problem to be optimized */
 	int dimension = 20;
 	/** lower bound of the parameters. */
-	double lb = -100.0;
+	double lb = -600.0;
 	/**
 	 * upper bound of the parameters. lb and ub can be defined as arrays for the
 	 * problems of which parameters have different bounds
 	 */
-	double ub = 100.0;
+	double ub = 600.0;
 
 	/** Algorithm can be run many times in order to see its robustness */
 	int runtime = 30;
@@ -156,7 +156,6 @@ public class SphereBeeG {
 			 */
 			neighbour = rand.nextInt(foodNum);
 
-
 			for (j = 0; j < dimension; j++) {
 				solution[j] = foods[i][j];
 			}
@@ -260,9 +259,8 @@ public class SphereBeeG {
 				// r = ((double) Math.random() * 32767 / ((double) (32767) +
 				// (double) (1)));
 				r = rand.nextDouble() * 2 - 1;
-				
 				int minIndex = Utils.minIndex(funVal);
-
+				
 				solution[param2change] = foods[i][param2change]
 						+ (foods[i][param2change] - foods[neighbour][param2change])
 						* r+rand.nextDouble()*1.5*(foods[minIndex][param2change] - foods[i][param2change]);
@@ -353,7 +351,7 @@ public class SphereBeeG {
 	 * @return
 	 */
 	public double calculateFunction(double sol[]) {
-		return sphere(sol);
+		return Griewank(sol);
 
 	}
 
@@ -407,7 +405,7 @@ public class SphereBeeG {
 	}
 
 	public static void main(String[] args) {
-		SphereBeeG bee = new SphereBeeG();
+		GriBeeG bee = new GriBeeG();
 		int iter = 0;
 		int run = 0;
 		int j = 0;
