@@ -118,7 +118,7 @@ public class AluBeeFCM {
 	
 	public static void main(String[] args){
 		AluBeeFCM abf = new AluBeeFCM();
-		String path = "/home/ucas/glass-normalize-noClass.arff";
+		String path = "";
 		LoadData ld = new LoadData();
 		abf.setData(ld.loadData(path));
 		abf.buildCluster();
