@@ -54,7 +54,7 @@ public class FuzzyCMeans extends RandomizableClusterer implements
 	/**
 	 * number of clusters to generate. 产生聚类个数
 	 */
-	protected int m_NumClusters = 2;
+	protected int m_NumClusters = 7;
 	/**
 	 * Holds the initial start points, as supplied by the initialization method
 	 * used
@@ -120,7 +120,7 @@ public class FuzzyCMeans extends RandomizableClusterer implements
 	/**
 	 * Maximum number of iterations to be executed. 最大迭代次数
 	 */
-	protected int m_MaxIterations = 100;
+	protected int m_MaxIterations = 200;
 
 	/**
 	 * Holds the squared errors for all clusters. 平方误差
@@ -1096,7 +1096,8 @@ public class FuzzyCMeans extends RandomizableClusterer implements
 		return temp.toString();
 	}
 	public double predict(Instances data,Instances test){
-		int classIndex = data.numAttributes()-1;
+		
+		int classIndex = data.attribute("class").index();
 		test.setClassIndex(classIndex);
 		data.deleteAttributeType(Attribute.NOMINAL);
 		data.setClassIndex(-1);
@@ -1180,7 +1181,7 @@ public class FuzzyCMeans extends RandomizableClusterer implements
 		return errorSum*1.0/test.numInstances();
 	}
 	public void cep(Instances data){
-		int mIter = 20;
+		int mIter = 30;
 		Random rand = new Random();
 		int dataNum = data.numInstances();
 		int trainNum = (int)(0.75* dataNum);
@@ -1217,7 +1218,7 @@ public class FuzzyCMeans extends RandomizableClusterer implements
 	}
 	public static void main(String[] args) {
 		FuzzyCMeans fcm = new FuzzyCMeans();
-		String path = "dataset/pima-indians-diabetes.arff";
+		String path = "dataset/segmentation-normalize.arff";
 		LoadData ld = new LoadData();
 		fcm.cep(ld.loadData(path));
 	}

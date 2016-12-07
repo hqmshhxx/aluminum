@@ -39,6 +39,17 @@ pima
 bupa
 winequality-white
 
+fcm
+cancer the mean = 0.07319347319347318 the std = 0.11815215969694216
+pima the mean = 0.3244791666666666 the std = 0.108290756857791562
+segmentation  the mean = 0.32737777777777777 the std = 0.10435381410623434
+
+abcfcm
+cancer the mean = 0.07762237762237764 the std = 0.12405444610853661
+pima the mean = 0.32326388888888885 the std = 0.10823646844687726
+
+
+
 
 铝电解数据结果  
 Within cluster sum of squared errors: 0.4827687757801394

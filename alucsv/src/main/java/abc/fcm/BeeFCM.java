@@ -154,7 +154,7 @@ public class BeeFCM extends RandomizableClusterer implements
 	 */
 	int limit = 5;
 	/** The number of cycles for foraging {a stopping criteria} */
-	int maxCycle = 20;
+	int maxCycle = 50;
 	int mCycle = 0;
 
 	/** Problem specific variables */
@@ -1718,26 +1718,36 @@ private class EmployBeeTask implements Callable<Boolean>{
 		return temp.toString();
 	}
 	
-	public void cep(Instances data){
-		int classIndex = data.numAttributes()-1;
-		data.setClassIndex(classIndex);
-		Instances instances = new Instances(data);
-		instances.setClassIndex(-1);
-		instances.deleteAttributeType(Attribute.NOMINAL);
+public double predict(Instances data,Instances test){
+		
+		int classIndex = data.attribute("class").index();
+		test.setClassIndex(classIndex);
+		data.deleteAttributeType(Attribute.NOMINAL);
+		data.setClassIndex(-1);
+		Instances testWithNoClass = new Instances(test);
+		testWithNoClass.setClassIndex(-1);
+		testWithNoClass.deleteAttributeType(Attribute.NOMINAL);
 		
 		try {
-			buildClusterer(instances);
-			toString();
+			buildClusterer(data);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		Instances[] insClusters = new Instances[m_NumClusters];
 		for(int i=0;i<m_NumClusters;i++){
-			insClusters[i] = new Instances(data,0);
+			insClusters[i] = new Instances(test,0);
 		}
-		for(int i=0;i<m_Assignments.length;i++){
-			insClusters[m_Assignments[i]].add(data.instance(i));
+		double[] distance = new double[m_NumClusters];
+		for(int i=0;i<test.numInstances();i++){
+			for(int j=0;j<m_NumClusters;j++){
+				distance[j]=m_DistanceFunction.distance(testWithNoClass.instance(i), 
+						m_ClusterCentroids.instance(j));
+			}
+			int minIndex = Utils.minIndex(distance);
+			insClusters[minIndex].add(test.instance(i));
+			
 		}
 		//i是类别组，j是类别索引
 		Matrix matrix = new Matrix(m_NumClusters,m_NumClusters);
@@ -1748,9 +1758,13 @@ private class EmployBeeTask implements Callable<Boolean>{
 		}
 		//类别值：类别索引
 		Map<String,Integer> map = new HashMap<>();
-		Enumeration<Object> className = data.classAttribute().enumerateValues();
+		//类别值：类别索引
+		Map<Integer,String> reverseMap = new HashMap<>();
+		Enumeration<Object> className = test.classAttribute().enumerateValues();
 		for(int i=0;i<m_NumClusters;i++){
-			map.put((String)(className.nextElement()), i);
+			String element = (String)(className.nextElement());
+			map.put(element, i);
+			reverseMap.put(i, element);
 		}
 		for(int i=0;i<m_NumClusters;i++){
 			for(int j=0;j<insClusters[i].numInstances(); j++){
@@ -1759,12 +1773,13 @@ private class EmployBeeTask implements Callable<Boolean>{
 				//第i个类别组第j个instance的类别索引
 				int col = map.get(key);
 				double val = matrix.get(i, col);
+//				System.out.println("val="+val);
 				matrix.set(i, col, val+1);
 			}
 		}
-		System.out.print("\nreal class label ");
-		for(String key : map.keySet()){
-			System.out.print(key+" ");
+		System.out.print(" real class ");
+		for(int i=0; i<m_NumClusters;i++){
+			System.out.print(reverseMap.get(i)+" ");
 		}
 		System.out.println();
 		for(int i=0;i<m_NumClusters;i++){
@@ -1784,14 +1799,50 @@ private class EmployBeeTask implements Callable<Boolean>{
 				}
 			}
 		}
-		System.out.println("the error number of classification = "+ errorSum 
-				+" error percentage = "+errorSum*1.0/data.numInstances());
-		
+		matrix = null;
+		m_DistanceFunction.clean();
+		return errorSum*1.0/test.numInstances();
+	}
+	public void cep(Instances data){
+		int mIter = 30;
+		Random rand = new Random();
+		int dataNum = data.numInstances();
+		int trainNum = (int)(0.75* dataNum);
+		int testNum = dataNum-trainNum;
+		Instances train = new Instances(data,trainNum);
+		Instances test = new Instances(data,testNum);
+		double mean=0;
+		double std =0;
+		double[] results = new double[mIter];
+		for(int k=0; k<mIter; k++){
+			train.clear();
+			test.clear();
+			data.randomize(rand);
+			for(int q=0;q<dataNum;q++){
+				if(q<trainNum){
+					train.add(data.instance(q));
+				}else{
+					test.add(data.instance(q));
+				}
+			}
+			Instances trainCopy = new Instances(train);
+			Instances testCopy = new Instances(test);
+			double result = predict(trainCopy,testCopy);
+			mean += result;
+			results[k]=result;
+			System.out.println("iter ="+k);
+		}
+		mean /= mIter;
+		for(int i=0;i<mIter; i++){
+			std += Math.pow(results[i]-mean, 2);
+		}
+		std = Math.sqrt(std);
+		System.out.println("the mean = " + mean+" the std = "+ std);
 	}
 
 	public static void main(String[] args) {
 		BeeFCM bfcm = new BeeFCM();
-		String path = "/home/ucas/software/weka-3-8-0/data/pima/pima-indians-diabetes-normalize.arff";
+		String path = "dataset/wdbc-normalize.arff";
 		LoadData ld = new LoadData();
 		bfcm.cep(ld.loadData(path));
 	}
