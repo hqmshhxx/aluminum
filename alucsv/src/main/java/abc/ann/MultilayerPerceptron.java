@@ -1088,7 +1088,7 @@ public class MultilayerPerceptron extends AbstractClassifier implements
     m_gui = false;
     m_useNomToBin = true;
     m_driftThreshold = 20;
-    m_numEpochs = 30;
+    m_numEpochs = 1;
     m_valSize = 0;
     m_randomSeed = 0;
     m_hiddenLayers = "3";
@@ -1761,6 +1761,8 @@ public class MultilayerPerceptron extends AbstractClassifier implements
   }
   
   public void buildNetwork(Instances i)throws Exception {
+	  
+	  i.setClassIndex(i.numAttributes()-1);
 	  // can classifier handle the data?
 	    getCapabilities().testWithFail(i);
 
@@ -1827,9 +1829,9 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 	  int ipNum = m_numAttributes;
 	  int opNum = m_numClasses;
 	  
-	  int opdelta = len-ipNum*hlNum-hlNum-hlNum*opNum;
-	  int opwgt = len-ipNum*hlNum-hlNum;
-	  int hldelta = len-ipNum*hlNum;
+	  int opdelta = ipNum*hlNum+hlNum+hlNum*opNum;
+	  int opwgt = ipNum*hlNum+hlNum;
+	  int hldelta = ipNum*hlNum;
 	  int hlwgt = 0;
 	  for(int opi=0; opi<opNum; opi++){
 		  double[] opiWeights = new double[hlNum+1];
@@ -1847,7 +1849,6 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 		  }
 		  m_neuralNodes[opNum+ipi].setWeights(ipiWeights);
 	  }
-	  
   }
   /**
    * Call this function to build and train a neural network for the training
@@ -1869,9 +1870,6 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 	      }
 	      valSet = new Instances(m_instances, 0, numInVal);
 	    }
-	    // /////////
-
-    // ///////////////////////////
     // this sets up the gui for usage
     if (m_gui) {
       m_win = new JFrame();
@@ -2500,8 +2498,7 @@ public class MultilayerPerceptron extends AbstractClassifier implements
       buf.append(this.getClass().getName().replaceAll(".*\\.", "")
         .replaceAll(".", "=")
         + "\n\n");
-      buf
-        .append("Warning: No model could be built, hence ZeroR model is used:\n\n");
+      buf.append("Warning: No model could be built, hence ZeroR model is used:\n\n");
       buf.append(m_ZeroR.toString());
       return buf.toString();
     }
@@ -2550,6 +2547,7 @@ public class MultilayerPerceptron extends AbstractClassifier implements
         }
       }
     }
+    model.append("\nglobal error is "+m_error+"\n");
     return model.toString();
   }
 

@@ -176,7 +176,7 @@ public class NeuralNode extends NeuralConnection {
   
   public void setWeights(double[] weights){
 	  if(weights != null){
-		 for(int i=0; i<m_weights.length; i++){
+		 for(int i=0; i<weights.length; i++){
 			 m_weights[i]=weights[i];
 		 }
 	  }

@@ -3,7 +3,7 @@
 
 @ATTRIBUTE left	REAL
 @ATTRIBUTE right 	REAL
-@ATTRIBUTE class 	{0,1}
+@ATTRIBUTE class 	real
 
 @DATA
 0,0,0

@@ -7,7 +7,6 @@ import java.util.Random;
 import cluster.LoadData;
 import weka.core.Instances;
 import weka.core.Utils;
-import weka.core.matrix.Matrix;
 
 public class ABCANN {
 
@@ -22,7 +21,7 @@ public class ABCANN {
 	 */
 	int limit = 20;
 	/** The number of cycles for foraging {a stopping criteria} */
-	int maxCycle = 500;
+	int maxCycle = 200;
 	int mCycle = 0;
 
 	/** Problem specific variables */
@@ -470,6 +469,12 @@ public class ABCANN {
 	public void setOutNum(int out){
 		opNum = out;
 	}
+	public double getMinObjFunValue(){
+		return minObjFunValue;
+	}
+	public double[] getBestFood(){
+		return bestFood;
+	}
 	public static void main(String[] args) {
 		ABCANN bee = new ABCANN();
 		String path = "dataset/XOR.arff";
@@ -478,14 +483,11 @@ public class ABCANN {
 		bee.setInputNum(2);
 		bee.setHiddenNum(3);
 		bee.setOutNum(1);
-		int iter = 0;
-		int run = 0;
-		int j = 0;
 		double mean = 0;
-		for (run = 0; run < bee.runCount; run++) {
+		for (int run = 0; run < bee.runCount; run++) {
 			bee.initial();
 			bee.memorizeBestSource();
-			for (iter = 0; iter < bee.maxCycle; iter++) {
+			for (int iter = 0; iter < bee.maxCycle; iter++) {
 				bee.mCycle = iter+1;
 				bee.sendEmployedBees();
 				bee.calculateProbabilities();
@@ -506,7 +508,7 @@ public class ABCANN {
 
 		double stdError = 0;
 
-		for (j = 0; j < bee.runCount; j++) {
+		for (int j = 0; j < bee.runCount; j++) {
 			stdError += Math.pow(bee.globalMins[j] - mean, 2);
 		}
 		stdError /= bee.runCount;
