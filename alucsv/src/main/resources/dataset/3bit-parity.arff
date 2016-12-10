@@ -1,0 +1,17 @@
+
+@RELATION xor
+
+@ATTRIBUTE left	REAL
+@ATTRIBUTE right REAL
+@ATTRIBUTE center REAL
+@ATTRIBUTE class {0,1}
+
+@DATA
+0,0,0,0
+0,0,1,1
+0,1,0,1
+0,1,1,0
+1,0,0,1
+1,0,1,0
+1,1,0,0
+1,1,1,1

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import cluster.LoadData;
 import weka.core.Instances;
 import weka.core.Utils;
 import weka.core.matrix.Matrix;
@@ -21,22 +22,22 @@ public class ABCANN {
 	 */
 	int limit = 20;
 	/** The number of cycles for foraging {a stopping criteria} */
-	int maxCycle = 100;
+	int maxCycle = 500;
 	int mCycle = 0;
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
 	int dimension = 0;
 	/** lower bound of the parameters. */
-	double lb = 0;
+	double lb = -10;
 	/**
 	 * upper bound of the parameters. lb and ub can be defined as arrays for the
 	 * problems of which parameters have different bounds
 	 */
-	double ub = 1;
+	double ub = 10;
 
 	/** Algorithm can be run many times in order to see its robustness */
-	int runCount = 1;
+	int runCount = 30;
 
 	/**
 	 * foods is the population of food sources. Each row of foods matrix is a
@@ -110,6 +111,10 @@ public class ABCANN {
 
 	/* All food sources are initialized */
 	public void initial() {
+		
+		dimension = ipNum*hlNum+hlNum+hlNum*opNum+opNum;
+		foods = new double[foodNum][dimension];
+		bestFood = new double[dimension];
 		int i;
 		for (i = 0; i < foodNum; i++) {
 			init(i);
@@ -410,15 +415,14 @@ public class ABCANN {
 		}
 		double[] hiddenNodes = null;
 		double[] outNodes = null;
-		double outValue = 0;
+		double errors = 0;
 		for(int i=0; i<train.numInstances(); i++){
 			hiddenNodes = calculateHiddenLayer(solution,i);
+			outNodes = calculateOutLayer(solution,hiddenNodes);
+			errors += calculateError(solution,i,outNodes);
 		}
-		outNodes = calculateOutLayer(solution,hiddenNodes);
-		for(int opi=0; opi<opNum; opi++){
-			outValue += outNodes[opi];
-		}
-		return outValue/(hlNum*opNum);
+		
+		return errors/(hlNum*opNum);
 	}
 	public double[] calculateHiddenLayer(double[] solution, int instanceIndex){
 		int iwi = 0;
@@ -434,7 +438,7 @@ public class ABCANN {
 		return hiddenNodes;
 	}
 	public double[] calculateOutLayer(double[] solution,double[] hiddenNodes){
-		int hwi = ipNum*hlNum+3;
+		int hwi = ipNum*hlNum+hlNum;
 		double[] outNodes = new double[opNum];
 		for(int opi=0; opi<opNum; opi++){
 			for(int j=0; j<hlNum; j++){
@@ -445,8 +449,35 @@ public class ABCANN {
 		}
 		return outNodes;
 	}
+	public double calculateError(double[] solution,int instanceIndex,double[] outNodes){
+		double error = 0;
+		for(int opi=0; opi<opNum; opi++){
+			error += outNodes[opi];
+		}
+		double realValue = train.instance(instanceIndex).value(train.numAttributes()-1);
+		error = Math.pow((error-realValue), 2);
+		return error;
+	}
+	public void setData(Instances data){
+		train = new Instances(data);
+	}
+	public void setInputNum(int in){
+		ipNum = in;
+	}
+	public void setHiddenNum(int hl){
+		hlNum = hl;
+	}
+	public void setOutNum(int out){
+		opNum = out;
+	}
 	public static void main(String[] args) {
 		ABCANN bee = new ABCANN();
+		String path = "dataset/XOR.arff";
+		LoadData ld = new LoadData();
+		bee.setData(ld.loadData(path));
+		bee.setInputNum(2);
+		bee.setHiddenNum(3);
+		bee.setOutNum(1);
 		int iter = 0;
 		int run = 0;
 		int j = 0;
