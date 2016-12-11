@@ -319,8 +319,7 @@ public class ABCANN {
 				/* v_{ij}=x_{ij}+\phi_{ij}*(x_{kj}-x_{ij}) */
 				
 				r = rand.nextDouble() * 2 - 1;
-				solution[dj] =  bestNeighbor[dj]
-						+ (bestNeighbor[dj] - foods[neighbour][dj])* r+
+				solution[dj] =  bestNeighbor[dj] + (bestNeighbor[dj] - foods[neighbour][dj])* r+
 						rand.nextDouble()*1.5*(foods[minFIndex][dj]-bestNeighbor[dj]);
 
 				/*
@@ -477,10 +476,10 @@ public class ABCANN {
 	}
 	public static void main(String[] args) {
 		ABCANN bee = new ABCANN();
-		String path = "dataset/XOR.arff";
+		String path = "dataset/housing-normalize.arff";
 		LoadData ld = new LoadData();
 		bee.setData(ld.loadData(path));
-		bee.setInputNum(2);
+		bee.setInputNum(13);
 		bee.setHiddenNum(3);
 		bee.setOutNum(1);
 		double mean = 0;

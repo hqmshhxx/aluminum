@@ -987,7 +987,7 @@ public class MultilayerPerceptron extends AbstractClassifier implements
   /** An int to say how big the validation set should be. */
   private int m_valSize;
 
-  /** The number to to use to quit on validation testing. */
+  /** The number to use to quit on validation testing. */
   private int m_driftThreshold;
 
   /** The number used to seed the random number generator. */

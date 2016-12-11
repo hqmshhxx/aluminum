@@ -4,7 +4,7 @@
 @ATTRIBUTE left	REAL
 @ATTRIBUTE right REAL
 @ATTRIBUTE center REAL
-@ATTRIBUTE class {0,1}
+@ATTRIBUTE class REAL
 
 @DATA
 0,0,0,0
