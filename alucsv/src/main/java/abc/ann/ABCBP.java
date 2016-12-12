@@ -1,6 +1,5 @@
 package abc.ann;
 
-import weka.core.Attribute;
 import weka.core.Instances;
 import cluster.LoadData;
 
