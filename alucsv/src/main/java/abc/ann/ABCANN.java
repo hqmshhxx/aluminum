@@ -12,28 +12,28 @@ public class ABCANN {
 
 
 	/** The number of colony size (employed bees+onlooker bees) */
-	int NP = 200;
+	int NP = 100;
 	/** The number of food sources equals the half of the colony size */
 	int foodNum = NP / 2;
 	/**
 	 * A food source which could not be improved through "limit" trials is
 	 * abandoned by its employed bee
 	 */
-	int limit = 20;
+	int limit = 10;
 	/** The number of cycles for foraging {a stopping criteria} */
-	int maxCycle = 200;
+	int maxCycle = 50;
 	int mCycle = 0;
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
 	int dimension = 0;
 	/** lower bound of the parameters. */
-	double lb = -10;
+	double lb = -5;
 	/**
 	 * upper bound of the parameters. lb and ub can be defined as arrays for the
 	 * problems of which parameters have different bounds
 	 */
-	double ub = 10;
+	double ub = 5;
 
 	/** Algorithm can be run many times in order to see its robustness */
 	int runCount = 30;
@@ -476,7 +476,7 @@ public class ABCANN {
 	}
 	public static void main(String[] args) {
 		ABCANN bee = new ABCANN();
-		String path = "dataset/housing-normalize.arff";
+		String path = "dataset";
 		LoadData ld = new LoadData();
 		bee.setData(ld.loadData(path));
 		bee.setInputNum(13);
