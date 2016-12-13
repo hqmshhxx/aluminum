@@ -1122,7 +1122,7 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 		m_gui = false;
 		m_useNomToBin = false;
 		m_driftThreshold = 20;
-		m_numEpochs = 100;
+		m_numEpochs = 500;
 		m_valSize = 0;
 		m_randomSeed = 0;
 		m_hiddenLayers = "3";

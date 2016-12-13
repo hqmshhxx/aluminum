@@ -21,7 +21,7 @@ public class ABCANN {
 	 */
 	int limit = 10;
 	/** The number of cycles for foraging {a stopping criteria} */
-	int maxCycle = 50;
+	int maxCycle = 100;
 	int mCycle = 0;
 
 	/** Problem specific variables */
@@ -473,6 +473,21 @@ public class ABCANN {
 	}
 	public double[] getBestFood(){
 		return bestFood;
+	}
+	public void build(){
+		initial();
+		memorizeBestSource();
+		for (int iter = 0; iter < maxCycle; iter++) {
+			mCycle = iter + 1;
+			sendEmployedBees();
+			calculateProbabilities();
+			sendOnlookerBees();
+			memorizeBestSource();
+			sendScoutBees();
+			System.out.println("mcycle = " + mCycle);
+		}
+		System.out.println("人工蜂群的最小值：" + getMinObjFunValue());
+		
 	}
 	public static void main(String[] args) {
 		ABCANN bee = new ABCANN();

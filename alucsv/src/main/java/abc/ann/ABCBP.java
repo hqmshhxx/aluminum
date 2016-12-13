@@ -2,6 +2,7 @@ package abc.ann;
 
 import java.util.Random;
 
+import weka.classifiers.evaluation.Evaluation;
 import weka.core.Instances;
 import cluster.LoadData;
 
@@ -70,10 +71,15 @@ public class ABCBP {
 			Instances trainCopy = new Instances(train);
 			System.out.println(trainCopy.numInstances());
 			Instances testCopy = new Instances(test);
+			
+			
 			double result = predict(trainCopy, testCopy);
 			mean += result;
 			results[k] = result;
 			System.out.println("iter =" + k);
+			Evaluation evaluation = new Evaluation(trainCopy);
+			evaluation.evaluateModel(bp, testCopy);
+			System.out.println(evaluation.toSummaryString());
 		}
 		mean /= mIter;
 		for (int i = 0; i < mIter; i++) {
@@ -82,7 +88,8 @@ public class ABCBP {
 		std = Math.sqrt(std);
 		System.out.println("the mean = " + mean + " the std = " + std);
 	}
-
+	
+	
 	public static void main(String[] args) {
 		ABCBP abcBp = new ABCBP();
 		try {
