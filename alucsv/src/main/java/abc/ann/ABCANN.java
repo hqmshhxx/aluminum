@@ -19,7 +19,7 @@ public class ABCANN {
 	 * A food source which could not be improved through "limit" trials is
 	 * abandoned by its employed bee
 	 */
-	int limit = 10;
+	int limit = 5;
 	/** The number of cycles for foraging {a stopping criteria} */
 	int maxCycle = 100;
 	int mCycle = 0;
@@ -28,12 +28,12 @@ public class ABCANN {
 	/** The number of parameters of the problem to be optimized */
 	int dimension = 0;
 	/** lower bound of the parameters. */
-	double lb = -5;
+	double lb = -3;
 	/**
 	 * upper bound of the parameters. lb and ub can be defined as arrays for the
 	 * problems of which parameters have different bounds
 	 */
-	double ub = 5;
+	double ub = 3;
 
 	/** Algorithm can be run many times in order to see its robustness */
 	int runCount = 30;

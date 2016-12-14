@@ -7,3 +7,40 @@ xor maxFunVal=5.9084344088912953E-5 minFunVal=4.866814053740422E-5 mean=5.125844
 13-3-1 ANN
 housing 
 maxFunVal=92443.04666666663 minFunVal=92443.04666666663 mean=92443.04666666668 stdError=1.9058241313221758E-21
+
+
+bp
+winequality-red-normalize
+mean of rootMeanSquaredError = 0.14580706748475467 the std = 0.4610824322017029
+mean of meanAbsoluteError = 0.11589730787119965 the std = 0.3664994675547515
+breast-cancer-wisconsin-normalize
+mean of rootMeanSquaredError = 0.42848259074852724 the std = 1.354980924495138
+mean of meanAbsoluteError = 0.18745643443135174 the std = 0.5927892948570822
+housing
+mean of rootMeanSquaredError = 0.09491949041628715 the std = 0.30016178405799143
+mean of meanAbsoluteError = 0.06043232933617978 the std = 0.19110380501173949
+ENB2012-y1-normalize
+mean of rootMeanSquaredError = 0.08949579498225446 the std = 0.2830105531513926
+mean of meanAbsoluteError = 0.06681565141854186 the std = 0.21128964183045262
+concrete
+mean of rootMeanSquaredError = 0.09890712580113831 the std = 0.31277179435240315
+mean of meanAbsoluteError = 0.07704811144185746 the std = 0.24364752157074954
+
+
+
+abcpb
+winequality-red-normalize
+mean of rootMeanSquaredError = 0.1449438991152591 the std = 0.45835285414988314
+mean of meanAbsoluteError = 0.11387300031673205 the std = 0.3600980449979485
+breast-cancer-wisconsin-normalize 10次的mean [-3,3] m_numEpochs = 500;
+mean of rootMeanSquaredError = 0.35908481162311595 the std = 1.1355258779015505
+mean of meanAbsoluteError = 0.1397275799953901 the std = 0.4418574047288122
+housing
+mean of rootMeanSquaredError = 0.08995943074322749 the std = 0.2844766981607728
+mean of meanAbsoluteError = 0.0643196292236189 the std = 0.20339652660416327
+ENB2012-y1-normalize
+mean of rootMeanSquaredError = 0.07205202104093128 the std = 0.22784849650771902
+mean of meanAbsoluteError = 0.05427165387859404 the std = 0.1716220386406685
+concrete
+mean of rootMeanSquaredError = 0.09183176455975676 the std = 0.29039753756116116
+mean of meanAbsoluteError = 0.07227963532925766 the std = 0.22856827608682867

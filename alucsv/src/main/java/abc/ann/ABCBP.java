@@ -43,7 +43,7 @@ public class ABCBP {
 	}
 
 	public void cep() throws Exception {
-		String path = "dataset/winequality-white-normalize.arff";
+		String path = "dataset/Concrete-normalize.arff";
 		LoadData ld = new LoadData();
 		Instances data = ld.loadData(path);
 		Random rand = new Random();
@@ -53,9 +53,12 @@ public class ABCBP {
 		int testNum = dataNum - trainNum;
 		Instances train = new Instances(data, trainNum);
 		Instances test = new Instances(data, testNum);
-		double mean = 0;
-		double std = 0;
-		double[] results = new double[mIter];
+		double rootMeanSquaredError = 0;
+		double meanAbsoluteError = 0;
+		double rootMeanSquaredErrorStd = 0;
+		double meanAbsoluteErrorStd = 0;
+		double[] rootMeanSquaredResults = new double[mIter];
+		double[] meanAbsoluteResults = new double[mIter];
 		for (int k = 0; k < mIter; k++) {
 			train.clear();
 			test.clear();
@@ -72,21 +75,24 @@ public class ABCBP {
 			System.out.println(trainCopy.numInstances());
 			Instances testCopy = new Instances(test);
 			
-			
-			double result = predict(trainCopy, testCopy);
-			mean += result;
-			results[k] = result;
+			predict(trainCopy, testCopy);
 			System.out.println("iter =" + k);
 			Evaluation evaluation = new Evaluation(trainCopy);
 			evaluation.evaluateModel(bp, testCopy);
-			System.out.println(evaluation.toSummaryString());
+			rootMeanSquaredError += evaluation.rootMeanSquaredError();
+			meanAbsoluteError += evaluation.meanAbsoluteError();
+//			System.out.println(evaluation.toSummaryString());
 		}
-		mean /= mIter;
+		rootMeanSquaredError /= mIter;
+		meanAbsoluteError /= mIter;
 		for (int i = 0; i < mIter; i++) {
-			std += Math.pow(results[i] - mean, 2);
+			rootMeanSquaredErrorStd += Math.pow(rootMeanSquaredResults[i] - rootMeanSquaredError, 2);
+			meanAbsoluteErrorStd += Math.pow(meanAbsoluteResults[i] - meanAbsoluteError, 2);
 		}
-		std = Math.sqrt(std);
-		System.out.println("the mean = " + mean + " the std = " + std);
+		rootMeanSquaredErrorStd = Math.sqrt(rootMeanSquaredErrorStd);
+		meanAbsoluteErrorStd = Math.sqrt(meanAbsoluteErrorStd);
+		System.out.println("mean of rootMeanSquaredError = " + rootMeanSquaredError + " the std = " + rootMeanSquaredErrorStd);
+		System.out.println("mean of meanAbsoluteError = " + meanAbsoluteError + " the std = " + meanAbsoluteErrorStd);
 	}
 	
 	
