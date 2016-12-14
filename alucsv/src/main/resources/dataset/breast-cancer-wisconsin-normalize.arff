@@ -1,4 +1,4 @@
-@relation breast-cancer-wisconsin-weka.filters.unsupervised.attribute.ReplaceMissingValues-weka.filters.unsupervised.attribute.Normalize-S1.0-T0.0
+@relation breast-cancer-wisconsin-weka.filters.unsupervised.attribute.ReplaceMissingValues-weka.filters.unsupervised.attribute.Normalize-S1.0-T0.0-weka.filters.unsupervised.attribute.Normalize-S1.0-T0.0
 
 @attribute 'Sample code number' numeric
 @attribute 'Clump Thickness' numeric
@@ -10,7 +10,7 @@
 @attribute 'Bland Chromatin' numeric
 @attribute 'Normal Nucleoli' numeric
 @attribute Mitoses numeric
-@attribute Class {2,4}
+@attribute Class numeric
 
 @data
 0.070067,0.444444,0,0,0,0.111111,0,0.222222,0,0,2
