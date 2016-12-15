@@ -16,36 +16,52 @@ public class ABCBP {
 		bp = new MultilayerPerceptron();
 	}
 
-	public double predict(Instances train, Instances test) throws Exception {
+	public void predict(Instances train) throws Exception {
 		abcAnn.setData(train);
+		abcAnn.setBp(bp);
 		abcAnn.setInputNum(train.numAttributes() - 1);
 		abcAnn.setHiddenNum(3);
-		abcAnn.setOutNum(1);
-
-		abcAnn.initial();
-		abcAnn.memorizeBestSource();
-		for (int iter = 0; iter < abcAnn.maxCycle; iter++) {
-			abcAnn.mCycle = iter + 1;
-			abcAnn.sendEmployedBees();
-			abcAnn.calculateProbabilities();
-			abcAnn.sendOnlookerBees();
-			abcAnn.memorizeBestSource();
-			abcAnn.sendScoutBees();
-			System.out.println("mcycle = " + abcAnn.mCycle);
-		}
+		abcAnn.setOutNum(train.numClasses());
+		abcAnn.build();
 		System.out.println("人工蜂群的最小值：" + abcAnn.getMinObjFunValue());
 		double[] weights = abcAnn.getBestFood();
-		bp.buildNetwork(train);
 		bp.initWeights(weights);
-		bp.buildClassifier(train);
-		System.out.println(bp.toString());
-		return bp.testError(test);
+		bp.buildClassifier(null);
+		
 	}
 
-	public void cep() throws Exception {
-		String path = "dataset/Concrete-normalize.arff";
-		LoadData ld = new LoadData();
-		Instances data = ld.loadData(path);
+	public void classifier(Instances data)  throws Exception{
+		int mIter = 2;
+		
+		double rootMeanSquaredError = 0;
+		double meanAbsoluteError = 0;
+		double rootMeanSquaredErrorStd = 0;
+		double meanAbsoluteErrorStd = 0;
+		double[] rootMeanSquaredResults = new double[mIter];
+		double[] meanAbsoluteResults = new double[mIter];
+		for (int k = 0; k < mIter; k++) {
+			
+			predict(data);
+			
+			System.out.println("iter =" + k);
+			Evaluation evaluation = new Evaluation(data);
+			evaluation.evaluateModel(bp, data);
+			rootMeanSquaredError += evaluation.rootMeanSquaredError();
+			meanAbsoluteError += evaluation.meanAbsoluteError();
+			System.out.println(evaluation.toSummaryString());
+		}
+		rootMeanSquaredError /= mIter;
+		meanAbsoluteError /= mIter;
+		for (int i = 0; i < mIter; i++) {
+			rootMeanSquaredErrorStd += Math.pow(rootMeanSquaredResults[i] - rootMeanSquaredError, 2);
+			meanAbsoluteErrorStd += Math.pow(meanAbsoluteResults[i] - meanAbsoluteError, 2);
+		}
+		rootMeanSquaredErrorStd = Math.sqrt(rootMeanSquaredErrorStd);
+		meanAbsoluteErrorStd = Math.sqrt(meanAbsoluteErrorStd);
+		System.out.println("train mean of rootMeanSquaredError = " + rootMeanSquaredError + " the std = " + rootMeanSquaredErrorStd);
+		System.out.println("train mean of meanAbsoluteError = " + meanAbsoluteError + " the std = " + meanAbsoluteErrorStd);
+	}
+	public void regression(Instances data) throws Exception{
 		Random rand = new Random();
 		int mIter = 10;
 		int dataNum = data.numInstances();
@@ -70,18 +86,18 @@ public class ABCBP {
 					test.add(data.instance(q));
 				}
 			}
-
 			Instances trainCopy = new Instances(train);
 			System.out.println(trainCopy.numInstances());
 			Instances testCopy = new Instances(test);
 			
-			predict(trainCopy, testCopy);
+			predict(trainCopy);
+			
 			System.out.println("iter =" + k);
 			Evaluation evaluation = new Evaluation(trainCopy);
 			evaluation.evaluateModel(bp, testCopy);
 			rootMeanSquaredError += evaluation.rootMeanSquaredError();
 			meanAbsoluteError += evaluation.meanAbsoluteError();
-//			System.out.println(evaluation.toSummaryString());
+			System.out.println(evaluation.toSummaryString());
 		}
 		rootMeanSquaredError /= mIter;
 		meanAbsoluteError /= mIter;
@@ -91,11 +107,21 @@ public class ABCBP {
 		}
 		rootMeanSquaredErrorStd = Math.sqrt(rootMeanSquaredErrorStd);
 		meanAbsoluteErrorStd = Math.sqrt(meanAbsoluteErrorStd);
-		System.out.println("mean of rootMeanSquaredError = " + rootMeanSquaredError + " the std = " + rootMeanSquaredErrorStd);
-		System.out.println("mean of meanAbsoluteError = " + meanAbsoluteError + " the std = " + meanAbsoluteErrorStd);
+		System.out.println("test mean of rootMeanSquaredError = " + rootMeanSquaredError + " the std = " + rootMeanSquaredErrorStd);
+		System.out.println("test mean of meanAbsoluteError = " + meanAbsoluteError + " the std = " + meanAbsoluteErrorStd);
 	}
-	
-	
+
+	public void cep() throws Exception {
+		String path = "dataset/heart-disease-normalize.arff";
+		LoadData ld = new LoadData();
+		Instances data = ld.loadData(path);
+		data.setClassIndex(data.numAttributes()-1);
+		if(data.numClasses()>1){
+			classifier(data);
+		}else{
+			regression(data);
+		}
+	}
 	public static void main(String[] args) {
 		ABCBP abcBp = new ABCBP();
 		try {

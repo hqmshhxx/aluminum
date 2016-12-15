@@ -1123,7 +1123,7 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 		m_gui = false;
 		m_useNomToBin = false;
 		m_driftThreshold = 20;
-		m_numEpochs = 500;
+		m_numEpochs = 200;
 		m_valSize = 0;
 		m_randomSeed = 0;
 		m_hiddenLayers = "3";
@@ -1918,6 +1918,12 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 			m_neuralNodes[opNum + ipi].setWeights(ipiWeights);
 		}
 	}
+	
+	public double buildNet(double[] weights) throws Exception{
+		initWeights(weights);
+		buildClassifier(null);
+		return m_error;
+	}
 
 	/**
 	 * Call this function to build and train a neural network for the training
@@ -2187,7 +2193,7 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 			m_controlPanel = null;
 			m_nodePanel = null;
 		}
-		m_instances = new Instances(m_instances, 0);
+//		m_instances = new Instances(m_instances, 0);
 		m_currentInstance = null;
 	}
 
