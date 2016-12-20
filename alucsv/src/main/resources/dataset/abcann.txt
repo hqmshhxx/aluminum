@@ -1,14 +1,53 @@
-改进的abcann colony size = 100  maxCycle = 200  limit = 20
-2-3-1 ANN
-xor maxFunVal=5.9084344088912953E-5 minFunVal=4.866814053740422E-5 mean=5.125844280471148E-5 stdError=5.7537596691491214E-12
-3-3-1 ANN
-3bit-parity maxFunVal=0.012690320290720874 minFunVal=1.403811711957441E-4 mean=0.002886569641179958 stdError=1.0534265829807668E-5
+bp 10次独立实验 hiddenNum=6
+breast-cancer-wisconsin-normalize.arff 
+test mean of correct rate = 96.57142857142858 the std = 3.064385803744333E96
+test best of correct rate = 98.92857142857143 worst of correct rate = 95.35714285714286
+test mean of rootMeanSquaredError = 0.16023577996564503 the std = 0.06882829805788354
+test mean of meanAbsoluteError = 0.059660649083458736 the std = 0.019753631215000844
+heart-disease-normalize.arff
+test mean of correct rate = 59.67213114754097 the std = 2.8481084764944498E54
+test best of correct rate = 66.39344262295081 worst of correct rate = 53.278688524590166
+test mean of rootMeanSquaredError = 0.3163472276777654 the std = 0.03613764384930012
+test mean of meanAbsoluteError = 0.20900755365834822 the std = 0.030721477841312596
+pima-diabetes-normalize.arff
+test mean of correct rate = 75.6168831168831 the std = 4.212253748958371E71
+test best of correct rate = 77.59740259740259 worst of correct rate = 74.35064935064935
+test mean of rootMeanSquaredError = 0.4026316947851156 the std = 0.018174239409585787
+test mean of meanAbsoluteError = 0.31469686965979127 the std = 0.04548244242351731
+iris
+test mean of correct rate = 95.16666666666667 the std = 1.1917054319790363E95
+test best of correct rate = 98.33333333333333 worst of correct rate = 91.66666666666667
+test mean of rootMeanSquaredError = 0.1838836591214772 the std = 0.041927664957683214
+test mean of meanAbsoluteError = 0.12494041408386287 the std = 0.032931916751355664
 
-13-3-1 ANN
-housing 
-maxFunVal=92443.04666666663 minFunVal=92443.04666666663 mean=92443.04666666668 stdError=1.9058241313221758E-21
+
+abcbp 10次独立实验 hiddenNum=6 maxCycle = 100 int NP = 100
+breast-cancer-wisconsin-normalize.arff
+test mean of correct rate = 96.46428571428572 the std = 1.6174266004530108E96
+test best of correct rate = 98.92857142857143 worst of correct rate = 95.35714285714286
+test mean of rootMeanSquaredError = 0.16574199512621277 the std = 0.07430326287708129
+test mean of meanAbsoluteError = 0.06043581525785334 the std = 0.03309406562836498
+heart-disease-normalize.arff 
+test mean of correct rate = 58.852459016393446 the std = 1.1436338042298144E53
+test best of correct rate = 65.57377049180327 worst of correct rate = 53.278688524590166
+test mean of rootMeanSquaredError = 0.3211054814076683 the std = 0.035126299488147016
+test mean of meanAbsoluteError = 0.20760802305743117 the std = 0.021130476308755964
+pima-diabetes-normalize.arff
+test mean of correct rate = 76.10389610389612 the std = 1.6539417578191482E72
+test best of correct rate = 78.24675324675324 worst of correct rate = 73.05194805194805
+test mean of rootMeanSquaredError = 0.40342886532421424 the std = 0.026771914300771672
+test mean of meanAbsoluteError = 0.3058888747733074 the std = 0.05844089751519481
+iris
+test mean of correct rate = 95.66666666666666 the std = 2.4563068198664343E95
+test best of correct rate = 100.0 worst of correct rate = 91.66666666666667
+test mean of rootMeanSquaredError = 0.1544826779953486 the std = 0.06887141126549781
+test mean of meanAbsoluteError = 0.08024701987589651 the std = 0.03796439068095359
 
 
+
+
+
+=======old=========
 bp
 winequality-red-normalize
 mean of rootMeanSquaredError = 0.14580706748475467 the std = 0.4610824322017029

@@ -1122,11 +1122,11 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 		m_autoBuild = true;
 		m_gui = false;
 		m_useNomToBin = false;
-		m_driftThreshold = 20;
-		m_numEpochs = 200;
+		m_driftThreshold = 50;
+		m_numEpochs = 500;
 		m_valSize = 0;
 		m_randomSeed = 0;
-		m_hiddenLayers = "3";
+		m_hiddenLayers = "6";
 		m_learningRate = .3;
 		m_momentum = .2;
 		m_reset = true;
@@ -1939,6 +1939,7 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 
 		// this sets up the validation set.
 		Instances valSet = null;
+		m_valSize = 33;
 		// numinval is needed later
 		int numInVal = (int) (m_valSize / 100.0 * m_instances.numInstances());
 		if (m_valSize > 0) {
@@ -1947,77 +1948,11 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 			}
 			valSet = new Instances(m_instances, 0, numInVal);
 		}
-		// this sets up the gui for usage
-		if (m_gui) {
-			m_win = new JFrame();
-
-			m_win.addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowClosing(WindowEvent e) {
-					boolean k = m_stopIt;
-					m_stopIt = true;
-					int well = JOptionPane.showConfirmDialog(m_win,
-							"Are You Sure...\n" + "Click Yes To Accept"
-									+ " The Neural Network"
-									+ "\n Click No To Return",
-							"Accept Neural Network", JOptionPane.YES_NO_OPTION);
-
-					if (well == 0) {
-						m_win.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-						m_accepted = true;
-						blocker(false);
-					} else {
-						m_win.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-					}
-					m_stopIt = k;
-				}
-			});
-
-			m_win.getContentPane().setLayout(new BorderLayout());
-			m_win.setTitle("Neural Network");
-			m_nodePanel = new NodePanel();
-			// without the following two lines, the
-			// NodePanel.paintComponents(Graphics)
-			// method will go berserk if the network doesn't fit completely: it
-			// will
-			// get called on a constant basis, using 100% of the CPU
-			// see the following forum thread:
-			// http://forum.java.sun.com/thread.jspa?threadID=580929&messageID=2945011
-			m_nodePanel.setPreferredSize(new Dimension(640, 480));
-			m_nodePanel.revalidate();
-
-			JScrollPane sp = new JScrollPane(m_nodePanel,
-					JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-					JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-			m_controlPanel = new ControlPanel();
-
-			m_win.getContentPane().add(sp, BorderLayout.CENTER);
-			m_win.getContentPane().add(m_controlPanel, BorderLayout.SOUTH);
-			m_win.setSize(640, 480);
-			m_win.setVisible(true);
-		}
-
-		// This sets up the initial state of the gui
-		if (m_gui) {
-			blocker(true);
-			m_controlPanel.m_changeEpochs.setEnabled(false);
-			m_controlPanel.m_changeLearning.setEnabled(false);
-			m_controlPanel.m_changeMomentum.setEnabled(false);
-		}
-
 		// For silly situations in which the network gets accepted before
 		// training
 		// commenses
 		if (m_numeric) {
 			setEndsToLinear();
-		}
-		if (m_accepted) {
-			m_win.dispose();
-			m_controlPanel = null;
-			m_nodePanel = null;
-			m_instances = new Instances(m_instances, 0);
-			m_currentInstance = null;
-			return;
 		}
 
 		// connections done.
@@ -2066,13 +2001,10 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 					if (m_decay) {
 						tempRate /= noa;
 					}
-
 					right += (calculateErrors() / m_instances.numClasses())
 							* m_currentInstance.weight();
 					updateNetworkWeights(tempRate, m_momentum);
-
 				}
-
 			}
 			right /= totalWeight;
 			if (Double.isInfinite(right) || Double.isNaN(right)) {
@@ -2092,7 +2024,7 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 					m_learningRate /= 2;
 					buildClassifier(i);
 					m_learningRate = origRate;
-					m_instances = new Instances(m_instances, 0);
+//					m_instances = new Instances(m_instances, 0);
 					m_currentInstance = null;
 					return;
 				}
@@ -2108,13 +2040,11 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 						// validation set
 						resetNetwork();
 						calculateOutputs();
-						right += (calculateErrors() / valSet.numClasses())
-								* m_currentInstance.weight();
+						right += (calculateErrors() / valSet.numClasses()) * m_currentInstance.weight();
 						// note 'right' could be calculated here just using
 						// the calculate output values. This would be faster.
 						// be less modular
 					}
-
 				}
 
 				if (right < lastRight) {
@@ -2140,59 +2070,8 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 			}
 			m_epoch = noa;
 			m_error = right;
-			// shows what the neuralnet is upto if a gui exists.
-			updateDisplay();
-			// This junction controls what state the gui is in at the end of
-			// each
-			// epoch, Such as if it is paused, if it is resumable etc...
-			if (m_gui) {
-				while ((m_stopIt || (m_epoch >= m_numEpochs && m_valSize == 0))
-						&& !m_accepted) {
-					m_stopIt = true;
-					m_stopped = true;
-					if (m_epoch >= m_numEpochs && m_valSize == 0) {
-
-						m_controlPanel.m_startStop.setEnabled(false);
-					} else {
-						m_controlPanel.m_startStop.setEnabled(true);
-					}
-					m_controlPanel.m_startStop.setText("Start");
-					m_controlPanel.m_startStop.setActionCommand("Start");
-					m_controlPanel.m_changeEpochs.setEnabled(true);
-					m_controlPanel.m_changeLearning.setEnabled(true);
-					m_controlPanel.m_changeMomentum.setEnabled(true);
-
-					blocker(true);
-					if (m_numeric) {
-						setEndsToLinear();
-					}
-				}
-				m_controlPanel.m_changeEpochs.setEnabled(false);
-				m_controlPanel.m_changeLearning.setEnabled(false);
-				m_controlPanel.m_changeMomentum.setEnabled(false);
-
-				m_stopped = false;
-				// if the network has been accepted stop the training loop
-				if (m_accepted) {
-					m_win.dispose();
-					m_controlPanel = null;
-					m_nodePanel = null;
-					m_instances = new Instances(m_instances, 0);
-					m_currentInstance = null;
-					return;
-				}
-			}
-			if (m_accepted) {
-				m_instances = new Instances(m_instances, 0);
-				m_currentInstance = null;
-				return;
-			}
 		}
-		if (m_gui) {
-			m_win.dispose();
-			m_controlPanel = null;
-			m_nodePanel = null;
-		}
+	
 //		m_instances = new Instances(m_instances, 0);
 		m_currentInstance = null;
 	}
@@ -2233,15 +2112,13 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 						instance[noa] = (m_currentInstance.value(noa) - m_attributeBases[noa])
 								/ m_attributeRanges[noa];
 					} else {
-						instance[noa] = m_currentInstance.value(noa)
-								- m_attributeBases[noa];
+						instance[noa] = m_currentInstance.value(noa)- m_attributeBases[noa];
 					}
 				} else {
 					instance[noa] = m_currentInstance.value(noa);
 				}
 			}
-			m_currentInstance = new DenseInstance(m_currentInstance.weight(),
-					instance);
+			m_currentInstance = new DenseInstance(m_currentInstance.weight(),instance);
 			m_currentInstance.setDataset(m_instances);
 		}
 		resetNetwork();
@@ -2268,20 +2145,6 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 			theArray[noa] /= count;
 		}
 		return theArray;
-	}
-
-	public double testError(Instances test) throws Exception {
-		double error = 0;
-		test.setClassIndex(test.numAttributes()-1);
-		for (int i = 0; i < test.numInstances(); i++) {
-			Instance ins = test.instance(i);
-			double[] output = distributionForInstance(ins);
-			if (output.length > 1) {
-				return Double.MAX_VALUE;
-			}
-			error += Math.pow(output[0] - ins.classValue(), 2);
-		}
-		return error/test.numInstances();
 	}
 
 	/**
@@ -2876,35 +2739,44 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 	public String getRevision() {
 		return RevisionUtils.extract("$Revision: 12449 $");
 	}
-
-	public double predict(Instances train, Instances test) throws Exception {
-
+	
+	public void predict(Instances train) throws Exception {
 		buildNetwork(train);
-		buildClassifier(train);
-		System.out.println(toString());
-		return testError(test);
+		System.out.println(m_instances.numInstances());
+		buildClassifier(null);
 	}
 
-	public void cep() throws Exception {
-		String path = "dataset/Concrete-normalize.arff";
-		LoadData ld = new LoadData();
-		Instances data = ld.loadData(path);
+	public void classifier(Instances data)  throws Exception{
 		Random rand = new Random();
 		int mIter = 10;
 		int dataNum = data.numInstances();
-		int trainNum = (int) (0.75 * dataNum);
+		int trainNum = (int) (0.6 * dataNum);
 		int testNum = dataNum - trainNum;
 		Instances train = new Instances(data, trainNum);
 		Instances test = new Instances(data, testNum);
-		double rootMeanSquaredError = 0;
-		double meanAbsoluteError = 0;
-		double rootMeanSquaredErrorStd = 0;
-		double meanAbsoluteErrorStd = 0;
-		double[] rootMeanSquaredResults = new double[mIter];
-		double[] meanAbsoluteResults = new double[mIter];
+	
+		double correctRate = 0;
+		double correctRateStd = 0;
+		double[] correctRateResults = new double[mIter];
+/*
+		double trainRootMeanSquaredError = 0;
+		double trainMeanAbsoluteError = 0;
+		double trainRootMeanSquaredErrorStd = 0;
+		double trainMeanAbsoluteErrorStd = 0;
+		double[] trainRootMeanSquaredResults = new double[mIter];
+		double[] trainMeanAbsoluteResults = new double[mIter];
+*/		
+		double testRootMeanSquaredError = 0;
+		double testMeanAbsoluteError = 0;
+		double testRootMeanSquaredErrorStd = 0;
+		double testMeanAbsoluteErrorStd = 0;
+		double[] testRootMeanSquaredResults = new double[mIter];
+		double[] testMeanAbsoluteResults = new double[mIter];
+		
 		for (int k = 0; k < mIter; k++) {
 			train.clear();
 			test.clear();
+			rand.setSeed(k);
 			data.randomize(rand);
 			for (int q = 0; q < dataNum; q++) {
 				if (q < trainNum) {
@@ -2913,27 +2785,59 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 					test.add(data.instance(q));
 				}
 			}
-
-			Instances trainCopy = new Instances(train);
-			Instances testCopy = new Instances(test);
-			predict(trainCopy, testCopy);
+			m_randomSeed = k;
+			predict(train);
 			System.out.println("iter =" + k);
-			Evaluation evaluation = new Evaluation(trainCopy);
-			evaluation.evaluateModel(this, testCopy);
-			rootMeanSquaredError += evaluation.rootMeanSquaredError();
-			meanAbsoluteError += evaluation.meanAbsoluteError();
-//			System.out.println(evaluation.toSummaryString());
+/*			
+			Evaluation trainEvaluation = new Evaluation(data);
+			trainEvaluation.evaluateModel(bp, data);
+			trainRootMeanSquaredResults[k]= trainEvaluation.rootMeanSquaredError();
+			trainMeanAbsoluteResults[k] = trainEvaluation.meanAbsoluteError();
+			trainRootMeanSquaredError += trainEvaluation.rootMeanSquaredError();
+			trainMeanAbsoluteError += trainEvaluation.meanAbsoluteError();
+			System.out.println(trainEvaluation.toSummaryString());
+*/			
+			
+			Evaluation testEvaluation = new Evaluation(test);
+			testEvaluation.evaluateModel(this, test);
+			
+			correctRate += testEvaluation.pctCorrect();
+			testRootMeanSquaredError += testEvaluation.rootMeanSquaredError();
+			testMeanAbsoluteError += testEvaluation.meanAbsoluteError();
+			
+			correctRateResults[k] = testEvaluation.pctCorrect();
+			testRootMeanSquaredResults[k] = testEvaluation.rootMeanSquaredError();
+			testMeanAbsoluteResults[k] = testEvaluation.meanAbsoluteError();
+			
+			System.out.println(testEvaluation.toSummaryString());
 		}
-		rootMeanSquaredError /= mIter;
-		meanAbsoluteError /= mIter;
+		correctRate /= mIter;
+		testRootMeanSquaredError /= mIter;
+		testMeanAbsoluteError /= mIter;
 		for (int i = 0; i < mIter; i++) {
-			rootMeanSquaredErrorStd += Math.pow(rootMeanSquaredResults[i] - rootMeanSquaredError, 2);
-			meanAbsoluteErrorStd += Math.pow(meanAbsoluteResults[i] - meanAbsoluteError, 2);
+			correctRateStd += Math.pow(correctRateResults[i], correctRate);
+			testRootMeanSquaredErrorStd += Math.pow(testRootMeanSquaredResults[i] - testRootMeanSquaredError, 2);
+			testMeanAbsoluteErrorStd += Math.pow(testMeanAbsoluteResults[i] - testMeanAbsoluteError, 2);
 		}
-		rootMeanSquaredErrorStd = Math.sqrt(rootMeanSquaredErrorStd);
-		meanAbsoluteErrorStd = Math.sqrt(meanAbsoluteErrorStd);
-		System.out.println("mean of rootMeanSquaredError = " + rootMeanSquaredError + " the std = " + rootMeanSquaredErrorStd);
-		System.out.println("mean of meanAbsoluteError = " + meanAbsoluteError + " the std = " + meanAbsoluteErrorStd);
+		correctRateStd = Math.sqrt(correctRateStd);
+		testRootMeanSquaredErrorStd = Math.sqrt(testRootMeanSquaredErrorStd);
+		testMeanAbsoluteErrorStd = Math.sqrt(testMeanAbsoluteErrorStd);
+		int maxIndex = Utils.maxIndex(correctRateResults);
+		int minIndex = Utils.minIndex(correctRateResults);
+		System.out.println("test mean of correct rate = " + correctRate + " the std = " + correctRateStd);
+		System.out.println("test best of correct rate = " + correctRateResults[maxIndex] + " worst of correct rate = " + correctRateResults[minIndex]);
+		System.out.println("test mean of rootMeanSquaredError = " + testRootMeanSquaredError + " the std = " + testRootMeanSquaredErrorStd);
+		System.out.println("test mean of meanAbsoluteError = " + testMeanAbsoluteError + " the std = " + testMeanAbsoluteErrorStd);
+	}
+	
+
+	public void cep() throws Exception {
+		String path = "dataset/breast-cancer-wisconsin-normalize.arff";
+		LoadData ld = new LoadData();
+		Instances data = ld.loadData(path);
+		data.setClassIndex(data.numAttributes()-1);
+		classifier(data);
+		
 	}
 
 	/**

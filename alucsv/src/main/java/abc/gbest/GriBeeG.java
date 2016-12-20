@@ -259,11 +259,10 @@ public class GriBeeG {
 				// r = ((double) Math.random() * 32767 / ((double) (32767) +
 				// (double) (1)));
 				r = rand.nextDouble() * 2 - 1;
-				int minIndex = Utils.minIndex(funVal);
 				
 				solution[param2change] = foods[i][param2change]
 						+ (foods[i][param2change] - foods[neighbour][param2change])
-						* r+rand.nextDouble()*1.5*(foods[minIndex][param2change] - foods[i][param2change]);
+						* r+rand.nextDouble()*1.5*(globalParams[param2change] - foods[i][param2change]);
 
 				/*
 				 * if generated parameter value is out of boundaries, it is
@@ -412,14 +411,14 @@ public class GriBeeG {
 		double mean = 0;
 		for (run = 0; run < bee.runtime; run++) {
 			bee.initial();
-			bee.memorizeBestSource();
 			for (iter = 0; iter < bee.maxCycle; iter++) {
 				bee.sendEmployedBees();
+				bee.memorizeBestSource();
 				bee.calculateProbabilities();
 				bee.sendOnlookerBees();
-				bee.memorizeBestSource();
 				bee.sendScoutBees();
 			}
+			bee.memorizeBestSource();
 			bee.globalMins[run] = bee.globalMin;
 			mean = mean + bee.globalMin;
 		}

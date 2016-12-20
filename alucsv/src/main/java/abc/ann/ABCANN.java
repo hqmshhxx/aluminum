@@ -12,28 +12,28 @@ public class ABCANN {
 
 
 	/** The number of colony size (employed bees+onlooker bees) */
-	int NP = 50;
+	int NP = 100;
 	/** The number of food sources equals the half of the colony size */
 	int foodNum = NP / 2;
 	/**
 	 * A food source which could not be improved through "limit" trials is
 	 * abandoned by its employed bee
 	 */
-	int limit = 5;
+	int limit = 10;
 	/** The number of cycles for foraging {a stopping criteria} */
-	int maxCycle = 5;
+	int maxCycle = 100;
 	int mCycle = 0;
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
 	int dimension = 0;
 	/** lower bound of the parameters. */
-	double lb = -3;
+	double lb = -2;
 	/**
 	 * upper bound of the parameters. lb and ub can be defined as arrays for the
 	 * problems of which parameters have different bounds
 	 */
-	double ub = 3;
+	double ub = 2;
 
 	/** Algorithm can be run many times in order to see its robustness */
 	int runCount = 30;
@@ -147,8 +147,8 @@ public class ABCANN {
 	 * @param index
 	 * @return
 	 */
-	public List<double[]> calculateNeighbor(int index){
-		List<double[]> neighbors = new ArrayList<>();
+	public List<Integer> calculateNeighbor(int index){
+		List<Integer> neighbors = new ArrayList<>();
 		double mean = calculateMean(index);
 		for(int i=0; i<foodNum; i++){
 			double total =0;
@@ -158,7 +158,7 @@ public class ABCANN {
 				}
 			}
 			if(total < mean){
-				neighbors.add(foods[i]);
+				neighbors.add(i);
 			}
 		}
 		return neighbors;
@@ -169,19 +169,14 @@ public class ABCANN {
 	 * @return X_{Nm}^best
 	 */
 	public double[] calculateNeighborBest(int index){
-		List<double[]> neighbors = calculateNeighbor(index);
-		double maxFit = lb;
-		double[] maxNeighbor = null;
-		for(double[] neighbor : neighbors){
-			double objVal = calculateObjectiveFunction(neighbor);
-			double fitness = calculateFitness(objVal);
-			if(maxFit<fitness){
-				maxFit = fitness;
-				maxNeighbor = neighbor;
+		List<Integer> neighbors = calculateNeighbor(index);
+		int bestIndex = neighbors.get(0);
+		for(Integer neighbor : neighbors){
+			if(fitness[neighbor]>fitness[bestIndex]){
+				bestIndex = neighbor;
 			}
 		}
-		return maxNeighbor;
-		
+		return foods[bestIndex];
 	}
 	/** The best food source is memorized */
 	public void memorizeBestSource() {
@@ -387,7 +382,7 @@ public class ABCANN {
 		if (fun > 0) {
 			result = 1 / (fun + 1);
 		} else {
-			result = 1;
+			result = 1 + Math.abs(fun);
 		}
 		return result;
 	}

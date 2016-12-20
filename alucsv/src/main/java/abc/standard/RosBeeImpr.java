@@ -9,7 +9,7 @@ import weka.core.Utils;
 public class RosBeeImpr {
 
 	/** The number of colony size (employed bees+onlooker bees) */
-	int NP = 40;
+	int NP = 200;
 	/** The number of food sources equals the half of the colony size */
 	int foodNum = NP / 2;
 	/**
@@ -334,14 +334,13 @@ public class RosBeeImpr {
 				for (j = 0; j < dimension; j++)
 					solution[j] = foods[i][j];
 				double[] bestNeighbor = calculateNeighborBest(i);
-				int minFIndex = Utils.minIndex(funVal);
 				
 				/* v_{ij}=x_{ij}+\phi_{ij}*(x_{kj}-x_{ij}) */
 				
 				r = rand.nextDouble() * 2 - 1;
 				solution[param2change] =  bestNeighbor[param2change]
 						+ (bestNeighbor[param2change] - foods[neighbour][param2change])* r+
-						rand.nextDouble()*1.5*(foods[minFIndex][param2change]-bestNeighbor[param2change]);
+						rand.nextDouble()*1.5*(globalParams[param2change]-bestNeighbor[param2change]);
 
 				/*
 				 * if generated parameter value is out of boundaries, it is
@@ -480,15 +479,16 @@ public class RosBeeImpr {
 		double mean = 0;
 		for (run = 0; run < bee.runtime; run++) {
 			bee.initial();
-			bee.memorizeBestSource();
+			
 			for (iter = 0; iter < bee.maxCycle; iter++) {
 				bee.mCycle = iter+1;
 				bee.sendEmployedBees();
+				bee.memorizeBestSource();
 				bee.calculateProbabilities();
 				bee.sendOnlookerBees();
-				bee.memorizeBestSource();
 				bee.sendScoutBees();
 			}
+			bee.memorizeBestSource();
 			bee.globalMins[run] = bee.globalMin;
 			mean = mean + bee.globalMin;
 		}
