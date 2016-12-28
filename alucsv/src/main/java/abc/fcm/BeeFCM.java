@@ -263,6 +263,13 @@ public class BeeFCM extends RandomizableClusterer implements
 		getCapabilities().testWithFail(data);
 		startExecutorPool();
 		instances = new Instances(data);
+		m_NumClusters = instances.numClasses();
+		int classIndex = instances.classIndex();
+		if(classIndex < 0){
+			throw new Exception("no class label");
+		}
+		instances.setClassIndex(-1);
+		instances.deleteAttributeAt(classIndex);
 		init();
 		double mean = 0;
 		for (int run = 0; run < runCount; run++) {
@@ -270,6 +277,7 @@ public class BeeFCM extends RandomizableClusterer implements
 			memorizeBestSource();
 			for (int iter = 0; iter < maxCycle; iter++) {
 				mCycle = iter+1;
+				sendEmployedBees();
 				calculateProbabilities();
 				memorizeBestSource();
 				sendOnlookerBees();
@@ -1842,7 +1850,7 @@ public double predict(Instances data,Instances test){
 
 	public static void main(String[] args) {
 		BeeFCM bfcm = new BeeFCM();
-		String path = "dataset/wdbc-normalize.arff";
+		String path = "dataset/iris-normalize.arff";
 		LoadData ld = new LoadData();
 		bfcm.cep(ld.loadData(path));
 	}
