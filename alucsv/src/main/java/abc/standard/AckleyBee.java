@@ -4,7 +4,7 @@ import java.util.Random;
 
 import weka.core.Utils;
 
-public class GriBee {
+public class AckleyBee {
 
 	/** The number of colony size (employed bees+onlooker bees) */
 	int NP = 200;
@@ -22,12 +22,12 @@ public class GriBee {
 	/** The number of parameters of the problem to be optimized */
 	int dimension = 50;
 	/** lower bound of the parameters. */
-	double lb = -600.0;
+	double lb = -32.768;
 	/**
 	 * upper bound of the parameters. lb and ub can be defined as arrays for the
 	 * problems of which parameters have different bounds
 	 */
-	double ub = 600.0;
+	double ub = 32.768;
 
 	/** Algorithm can be run many times in order to see its robustness */
 	int runtime = 30;
@@ -349,14 +349,25 @@ public class GriBee {
 	 * @return
 	 */
 	public double calculateFunction(double sol[]) {
-		return Griewank(sol);
+		return ackley(sol);
 
+	}
+	
+	double ackley(double[] sol){
+		double top1 = 0;
+		double top2 = 0;
+		double val = 0;
+		for(int j=0; j<dimension; j++){
+			top1 += sol[j]*sol[j];
+			top2 += Math.cos(2*Math.PI*sol[j]);
+		}
+		val = 20+Math.E - 20*Math.exp(-0.2*Math.sqrt(top1/dimension))-Math.exp(top2/dimension);
+		return val;
 	}
 
 	double sphere(double sol[]) {
-		int j;
 		double top = 0;
-		for (j = 0; j < dimension; j++) {
+		for (int j = 0; j < dimension; j++) {
 			top = top + sol[j] * sol[j];
 		}
 		return top;
@@ -366,9 +377,7 @@ public class GriBee {
 		int j;
 		double top = 0;
 		for (j = 0; j < dimension - 1; j++) {
-			top = top
-					+ 100
-					* Math.pow((sol[j + 1] - Math.pow((sol[j]), (double) 2)),
+			top = top+ 100 * Math.pow((sol[j + 1] - Math.pow((sol[j]), (double) 2)),
 							(double) 2) + Math.pow((sol[j] - 1), (double) 2);
 		}
 		return top;
@@ -403,7 +412,7 @@ public class GriBee {
 	}
 
 	public static void main(String[] args) {
-		GriBee bee = new GriBee();
+		AckleyBee bee = new AckleyBee();
 		int iter = 0;
 		int run = 0;
 		int j = 0;

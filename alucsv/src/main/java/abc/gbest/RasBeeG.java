@@ -1,10 +1,12 @@
-package abc.standard;
+package abc.gbest;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import weka.core.Utils;
 
-public class GriBee {
+public class RasBeeG {
 
 	/** The number of colony size (employed bees+onlooker bees) */
 	int NP = 200;
@@ -17,17 +19,18 @@ public class GriBee {
 	int limit = 100;
 	/** The number of cycles for foraging {a stopping criteria} */
 	int maxCycle = 1000;
+	int mCycle = 0;
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
-	int dimension = 50;
+	int dimension = 20;
 	/** lower bound of the parameters. */
-	double lb = -600.0;
+	double lb = -5.12;
 	/**
 	 * upper bound of the parameters. lb and ub can be defined as arrays for the
 	 * problems of which parameters have different bounds
 	 */
-	double ub = 600.0;
+	double ub = 5.12;
 
 	/** Algorithm can be run many times in order to see its robustness */
 	int runtime = 30;
@@ -88,6 +91,10 @@ public class GriBee {
 	double globalMins[] = new double[runtime];
 	/** a random number in the range [0,1) */
 	double r;
+	/**
+	 * the mean Euclidean distance between X_{m} and the rest  of solutions
+	 */
+	double mean;
 
 	/*
 	 * a function pointer returning double and taking a dimension-dimensional
@@ -109,9 +116,8 @@ public class GriBee {
 
 	/* Write your own objective function name instead of sphere */
 	// FunctionCallback function = &sphere;
-
 	
-
+	
 	/*
 	 * Variables are initialized in the range [lb,ub]. If each parameter has
 	 * different range, use arrays lb[j], ub[j] instead of lb and ub
@@ -140,6 +146,73 @@ public class GriBee {
 			globalParams[i] = foods[0][i];
 	}
 
+
+	/**
+	 * mean Euclidean distances between X_{m} and the rest of solutions.
+	 * @return
+	 */
+	public void calculateMean(int index){
+		double sum=0;
+		for(int i=0; i< foodNum; i++){
+			double total = 0;
+			if(index!=i){
+			for(int j=0; j<dimension; j++){
+					total+=Math.pow(foods[index][j] - foods[i][j],2);
+				}
+			}
+			sum+=total;
+		}
+		mean= sum/(foodNum-1);
+	}
+	/**
+	 * calculate the  neighbor of  X_{m} and itself (N_{m})
+	 * @param index
+	 * @return
+	 */
+	public List<Integer> calculateNeighbor(int index){
+		List<Integer> neighbors = new ArrayList<>();
+		calculateMean(index);
+		for(int i=0; i<foodNum; i++){
+			double total =0;
+			if(index !=i){
+				for(int j=0; j<dimension; j++){
+					total += Math.pow(foods[index][j] - foods[i][j], 2);
+				}
+			}
+			if(total < mean){
+				neighbors.add(i);
+			}
+		}
+		return neighbors;
+	}
+	/**
+	 * calculate the best solution among the neighbor of  X_{m} and itself (N_{m})
+	 * @param index
+	 * @return X_{Nm}^best
+	 */
+	public double[] calculateNeighborBest(int index){
+		List<Integer> neighbors = calculateNeighbor(index);
+		int bestIndex = neighbors.get(0);
+		for(Integer neighbor : neighbors){
+			if(fitness[neighbor]>fitness[bestIndex]){
+				bestIndex = neighbor;
+			}
+		}
+		return foods[bestIndex];
+	}
+	/** The best food source is memorized */
+	public void memorizeBestSource() {
+		int i, j;
+		for (i = 0; i < foodNum; i++) {
+			if (funVal[i] < globalMin) {
+				globalMin = funVal[i];
+				for (j = 0; j < dimension; j++)
+					globalParams[j] = foods[i][j];
+			}
+		}
+	}
+
+	
 	/**
 	 * Employed Bee Phase
 	 */
@@ -162,8 +235,7 @@ public class GriBee {
 			/* v_{ij}=x_{ij}+\phi_{ij}*(x_{kj}-x_{ij}) */
 			r = rand.nextDouble() * 2 - 1;
 			solution[param2change] = foods[i][param2change]
-					+ (foods[i][param2change] - foods[neighbour][param2change])
-					* r;
+					+ (foods[i][param2change] - foods[neighbour][param2change]) * r;
 
 			/*
 			 * if generated parameter value is out of boundaries, it is shifted
@@ -204,6 +276,7 @@ public class GriBee {
 		/* end of employed bee phase */
 
 	}
+
 
 	public void calculateProbabilities() {
 
@@ -254,14 +327,15 @@ public class GriBee {
 				}
 				for (j = 0; j < dimension; j++)
 					solution[j] = foods[i][j];
-
+//				double[] bestNeighbor = calculateNeighborBest(i);
+				int minIndex = Utils.minIndex(funVal);
+				
 				/* v_{ij}=x_{ij}+\phi_{ij}*(x_{kj}-x_{ij}) */
-				// r = ((double) Math.random() * 32767 / ((double) (32767) +
-				// (double) (1)));
+				
 				r = rand.nextDouble() * 2 - 1;
-				solution[param2change] = foods[i][param2change]
-						+ (foods[i][param2change] - foods[neighbour][param2change])
-						* r;
+				solution[param2change] =  foods[i][param2change]
+						+ (foods[i][param2change] - foods[neighbour][param2change])* r+
+						rand.nextDouble()*1.5*(foods[minIndex][param2change]-foods[i][param2change]);
 
 				/*
 				 * if generated parameter value is out of boundaries, it is
@@ -331,17 +405,7 @@ public class GriBee {
 		return result;
 	}
 
-	/** The best food source is memorized */
-	public void memorizeBestSource() {
-		int i, j;
-		for (i = 0; i < foodNum; i++) {
-			if (funVal[i] < globalMin) {
-				globalMin = funVal[i];
-				for (j = 0; j < dimension; j++)
-					globalParams[j] = foods[i][j];
-			}
-		}
-	}
+	
 	/**
 	 * calculate function value
 	 * 
@@ -349,7 +413,7 @@ public class GriBee {
 	 * @return
 	 */
 	public double calculateFunction(double sol[]) {
-		return Griewank(sol);
+		return Rastrigin(sol);
 
 	}
 
@@ -403,21 +467,23 @@ public class GriBee {
 	}
 
 	public static void main(String[] args) {
-		GriBee bee = new GriBee();
+		RasBeeG bee = new RasBeeG();
 		int iter = 0;
 		int run = 0;
 		int j = 0;
 		double mean = 0;
 		for (run = 0; run < bee.runtime; run++) {
 			bee.initial();
-			bee.memorizeBestSource();
+			
 			for (iter = 0; iter < bee.maxCycle; iter++) {
+				bee.mCycle = iter+1;
 				bee.sendEmployedBees();
+				bee.memorizeBestSource();
 				bee.calculateProbabilities();
 				bee.sendOnlookerBees();
-				bee.memorizeBestSource();
 				bee.sendScoutBees();
 			}
+			bee.memorizeBestSource();
 			bee.globalMins[run] = bee.globalMin;
 			mean = mean + bee.globalMin;
 		}

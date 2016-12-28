@@ -20,7 +20,7 @@ public class RosBee {
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
-	int dimension = 10;
+	int dimension = 20;
 	/** lower bound of the parameters. */
 	double lb = -30.0;
 	/**
@@ -366,8 +366,7 @@ public class RosBee {
 		int j;
 		double top = 0;
 		for (j = 0; j < dimension - 1; j++) {
-			top = top
-					+ 100
+			top = top+ 100
 					* Math.pow((sol[j + 1] - Math.pow((sol[j]), (double) 2)),
 							(double) 2) + Math.pow((sol[j] - 1), (double) 2);
 		}

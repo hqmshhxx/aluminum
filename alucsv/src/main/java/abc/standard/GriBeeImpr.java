@@ -23,7 +23,7 @@ public class GriBeeImpr {
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
-	int dimension = 20;
+	int dimension = 50;
 	/** lower bound of the parameters. */
 	double lb = -600.0;
 	/**
@@ -169,8 +169,8 @@ public class GriBeeImpr {
 	 * @param index
 	 * @return
 	 */
-	public List<double[]> calculateNeighbor(int index){
-		List<double[]> neighbors = new ArrayList<>();
+	public List<Integer> calculateNeighbor(int index){
+		List<Integer> neighbors = new ArrayList<>();
 		calculateMean(index);
 		for(int i=0; i<foodNum; i++){
 			double total =0;
@@ -180,7 +180,7 @@ public class GriBeeImpr {
 				}
 			}
 			if(total < mean){
-				neighbors.add(foods[i]);
+				neighbors.add(i);
 			}
 		}
 		return neighbors;
@@ -191,19 +191,14 @@ public class GriBeeImpr {
 	 * @return X_{Nm}^best
 	 */
 	public double[] calculateNeighborBest(int index){
-		List<double[]> neighbors = calculateNeighbor(index);
-		double maxFit = lb;
-		double[] maxNeighbor = null;
-		for(double[] neighbor : neighbors){
-			double objVal = calculateFunction(neighbor);
-			double fitness = calculateFitness(objVal);
-			if(maxFit<fitness){
-				maxFit = fitness;
-				maxNeighbor = neighbor;
+		List<Integer> neighbors = calculateNeighbor(index);
+		int bestIndex = neighbors.get(0);
+		for(Integer neighbor : neighbors){
+			if(fitness[neighbor]>fitness[bestIndex]){
+				bestIndex = neighbor;
 			}
 		}
-		return maxNeighbor;
-		
+		return foods[bestIndex];
 	}
 	/** The best food source is memorized */
 	public void memorizeBestSource() {
@@ -241,7 +236,7 @@ public class GriBeeImpr {
 			r = rand.nextDouble() * 2 - 1;
 			solution[param2change] = foods[i][param2change]
 					+ (foods[i][param2change] - foods[neighbour][param2change])
-					* r*(1 + 1/(Math.exp(-maxCycle*1.0/mCycle)+1));
+					* r;
 
 			/*
 			 * if generated parameter value is out of boundaries, it is shifted
@@ -334,13 +329,14 @@ public class GriBeeImpr {
 				for (j = 0; j < dimension; j++)
 					solution[j] = foods[i][j];
 				double[] bestNeighbor = calculateNeighborBest(i);
+				int minIndex = Utils.minIndex(funVal);
 				
 				/* v_{ij}=x_{ij}+\phi_{ij}*(x_{kj}-x_{ij}) */
 				
 				r = rand.nextDouble() * 2 - 1;
 				solution[param2change] =  bestNeighbor[param2change]
 						+ (bestNeighbor[param2change] - foods[neighbour][param2change])* r+
-						rand.nextDouble()*1.5*(globalParams[param2change]-bestNeighbor[param2change]);
+						rand.nextDouble()*1.5*(foods[minIndex][param2change]-bestNeighbor[param2change]);
 
 				/*
 				 * if generated parameter value is out of boundaries, it is

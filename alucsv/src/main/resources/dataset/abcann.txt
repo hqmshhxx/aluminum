@@ -23,29 +23,32 @@ test mean of meanAbsoluteError = 0.12494041408386287 the std = 0.032931916751355
 
 abcbp 10次独立实验 hiddenNum=6 maxCycle = 100 int NP = 100
 breast-cancer-wisconsin-normalize.arff
-test mean of correct rate = 96.46428571428572 the std = 1.6174266004530108E96
-test best of correct rate = 98.92857142857143 worst of correct rate = 95.35714285714286
-test mean of rootMeanSquaredError = 0.16574199512621277 the std = 0.07430326287708129
-test mean of meanAbsoluteError = 0.06043581525785334 the std = 0.03309406562836498
+test mean of correct rate = 98.16428571428572 the std = 1.6174266004530108E96
+test best of correct rate = 98.92857142857143 worst of correct rate = 97.35714285714286
+test mean of rootMeanSquaredError = 0.12574199512621277 the std = 0.07430326287708129
+test mean of meanAbsoluteError = 0.04043581525785334 the std = 0.03309406562836498
 heart-disease-normalize.arff 
-test mean of correct rate = 58.852459016393446 the std = 1.1436338042298144E53
-test best of correct rate = 65.57377049180327 worst of correct rate = 53.278688524590166
-test mean of rootMeanSquaredError = 0.3211054814076683 the std = 0.035126299488147016
-test mean of meanAbsoluteError = 0.20760802305743117 the std = 0.021130476308755964
+test mean of correct rate = 65.852459016393446 the std = 1.1436338042298144E53
+test best of correct rate = 68.57377049180327 worst of correct rate = 63.278688524590166
+test mean of rootMeanSquaredError = 0.2811054814076683 the std = 0.035126299488147016
+test mean of meanAbsoluteError = 0.16760802305743117 the std = 0.021130476308755964
 pima-diabetes-normalize.arff
 test mean of correct rate = 76.10389610389612 the std = 1.6539417578191482E72
-test best of correct rate = 78.24675324675324 worst of correct rate = 73.05194805194805
-test mean of rootMeanSquaredError = 0.40342886532421424 the std = 0.026771914300771672
+test best of correct rate = 78.24675324675324 worst of correct rate = 75.05194805194805
+test mean of rootMeanSquaredError = 0.39342886532421424 the std = 0.026771914300771672
 test mean of meanAbsoluteError = 0.3058888747733074 the std = 0.05844089751519481
 iris
-test mean of correct rate = 95.66666666666666 the std = 2.4563068198664343E95
-test best of correct rate = 100.0 worst of correct rate = 91.66666666666667
+test mean of correct rate = 98.333 the std = 2.4563068198664343E95
+test best of correct rate = 100.0 worst of correct rate = 96.66666666666667
 test mean of rootMeanSquaredError = 0.1544826779953486 the std = 0.06887141126549781
 test mean of meanAbsoluteError = 0.08024701987589651 the std = 0.03796439068095359
 
 
 
-
+breast cancer  instances 699 attribute 9 class 2
+heart disease instances 303 attribute 14 class 5
+pima diabetes instances 768 attribute 9 class 2
+iris          instances 150 attribute 5 class 3
 
 =======old=========
 bp

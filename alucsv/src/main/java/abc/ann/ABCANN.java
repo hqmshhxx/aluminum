@@ -28,12 +28,12 @@ public class ABCANN {
 	/** The number of parameters of the problem to be optimized */
 	int dimension = 0;
 	/** lower bound of the parameters. */
-	double lb = -2;
+	double lb = -10;
 	/**
 	 * upper bound of the parameters. lb and ub can be defined as arrays for the
 	 * problems of which parameters have different bounds
 	 */
-	double ub = 2;
+	double ub = 10;
 
 	/** Algorithm can be run many times in order to see its robustness */
 	int runCount = 30;
