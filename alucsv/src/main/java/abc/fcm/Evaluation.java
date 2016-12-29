@@ -3,33 +3,43 @@ package abc.fcm;
 import java.util.Random;
 
 import cluster.LoadData;
-import weka.clusterers.AbstractClusterer;
 import weka.clusterers.ClusterEvaluation;
+import weka.clusterers.RandomizableClusterer;
 import weka.core.Instances;
 
 public class Evaluation {
 	
-	private AbstractClusterer cluster;
+	private RandomizableClusterer cluster;
 	
-	public double predict(Instances train,Instances test) throws Exception{
+	
+	public Evaluation(){
+//		cluster = new ABCSimpleFCM();
+//		cluster = new BeeFCM();
+		cluster = new FuzzyCMeans();
+	}
+	public void setCluster(RandomizableClusterer cluster){
+		this.cluster = cluster;
+	}
+	
+	public double predict(Instances train,Instances test,int seed) throws Exception{
 		
 		int classIndex = train.attribute("class").index();
 		test.setClassIndex(classIndex);
 		train.setClassIndex(classIndex);
-		
+		cluster.setSeed(seed);
 		cluster.buildClusterer(train);
 		
 		ClusterEvaluation evaluation = new ClusterEvaluation();
 		evaluation.setClusterer(cluster);
-		evaluation.evaluateClusterer(test);
+		evaluation.evaluateClusterer(train);
 		System.out.println(evaluation.clusterResultsToString());
 		return 1;
 	}
 	public void cep(Instances data) throws Exception{
-		int mIter = 30;
+		int mIter = 10;
 		Random rand = new Random();
 		int dataNum = data.numInstances();
-		int trainNum = (int)(0.75* dataNum);
+		int trainNum = (int)(1* dataNum);
 		int testNum = dataNum-trainNum;
 		Instances train = new Instances(data,trainNum);
 		Instances test = new Instances(data,testNum);
@@ -49,7 +59,7 @@ public class Evaluation {
 			}
 			Instances trainCopy = new Instances(train);
 			Instances testCopy = new Instances(test);
-			double result = predict(trainCopy,testCopy);
+			double result = predict(trainCopy,testCopy,k);
 			mean += result;
 			results[k]=result;
 			System.out.println("iter ="+k);
@@ -63,6 +73,7 @@ public class Evaluation {
 	}
 	public static void main(String[] args) {
 		Evaluation evl = new Evaluation();
+		
 		String path = "dataset/iris-normalize.arff";
 		LoadData ld = new LoadData();
 		try {

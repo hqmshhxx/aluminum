@@ -153,6 +153,8 @@ public class FuzzyCMeans extends RandomizableClusterer implements
 	 * 
 	 */
 	protected int[] m_Assignments = null;
+	
+	private Random rand = new Random();
 
 
 	public FuzzyCMeans() {
@@ -189,9 +191,16 @@ public class FuzzyCMeans extends RandomizableClusterer implements
 	 *             if the clusterer has not been generated successfully
 	 */
 	@Override
-	public void buildClusterer(Instances instances) throws Exception {
+	public void buildClusterer(Instances data) throws Exception {
 
-		// can clusterer handle the data?
+		Instances instances = new Instances(data);
+		m_NumClusters = instances.numClasses();
+		int classIndex = instances.classIndex();
+		if(classIndex < 0){
+			throw new Exception("no class label");
+		}
+		instances.setClassIndex(-1);
+		instances.deleteAttributeAt(classIndex);
 		getCapabilities().testWithFail(instances);
 		m_Iterations = 0;
 		m_ReplaceMissingFilter = new ReplaceMissingValues();
@@ -236,21 +245,26 @@ public class FuzzyCMeans extends RandomizableClusterer implements
 		}
 
 		m_ClusterCentroids = new Instances(instances, m_NumClusters);
+		memberShip = new Matrix(instances.numInstances(), m_NumClusters);
+/*		
 		for(int i=0; i<m_NumClusters; i++){
 			m_ClusterCentroids.add(instances.firstInstance());
 		}
+*/		
 		m_DistanceFunction.setInstances(instances);
 		m_NumClusters = m_ClusterCentroids.numInstances();
 		m_squaredErrors = new double[m_NumClusters];
 		m_ClusterNominalCounts = new double[m_NumClusters][instances.numAttributes()][0];
 		m_ClusterMissingCounts = new double[m_NumClusters][instances.numAttributes()];
 
-		initMemberShip(instances);
+//		initMemberShip(instances);
+		initCentroids(instances);
 		double lastFunVal = 0.0d;
 		do {
 			lastFunVal = m_ObjFunValue;
-			updateCentroid(instances);
+//			updateCentroid(instances);
 			updateMemberShip(instances);
+			updateCentroid(instances);
 			calculateObjectiveFunction(instances);
 			if(Math.abs(m_ObjFunValue - lastFunVal) == m_EndValue)break;
 			
@@ -262,8 +276,6 @@ public class FuzzyCMeans extends RandomizableClusterer implements
 	}
 
 	public  void initMemberShip(Instances instances) {
-		memberShip = new Matrix(instances.numInstances(), m_NumClusters);
-		Random rand = new Random();
 		for (int i = 0; i < instances.numInstances(); i++) {
 			double sum = 0d;
 			for (int j = 0; j < m_NumClusters; j++) {
@@ -275,6 +287,16 @@ public class FuzzyCMeans extends RandomizableClusterer implements
 				double value = memberShip.get(i, j) / sum;
 				memberShip.set(i, j, value);
 			}
+		}
+	}
+	public void initCentroids(Instances instances){
+		double[] attributes = new double[instances.numAttributes()];
+		for(int i=0; i< attributes.length; i++){
+			attributes[i]=rand.nextDouble();
+		}
+		for(int i=0; i<m_NumClusters; i++){
+			Instance in = new DenseInstance(1.0, attributes);
+			m_ClusterCentroids.add(in);
 		}
 	}
 
@@ -510,6 +532,11 @@ public class FuzzyCMeans extends RandomizableClusterer implements
 	public int numberOfClusters() throws Exception {
 		// TODO Auto-generated method stub
 		return m_NumClusters;
+	}
+	
+	public void setSeed(int seed){
+		m_Seed = seed;
+		rand.setSeed(seed);
 	}
 
 	/**
@@ -1095,131 +1122,5 @@ public class FuzzyCMeans extends RandomizableClusterer implements
 		temp.append("\n\n");
 		return temp.toString();
 	}
-	public double predict(Instances data,Instances test){
-		
-		int classIndex = data.attribute("class").index();
-		test.setClassIndex(classIndex);
-		data.deleteAttributeType(Attribute.NOMINAL);
-		data.setClassIndex(-1);
-		Instances testWithNoClass = new Instances(test);
-		testWithNoClass.setClassIndex(-1);
-		testWithNoClass.deleteAttributeType(Attribute.NOMINAL);
-		
-		try {
-			buildClusterer(data);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		Instances[] insClusters = new Instances[m_NumClusters];
-		for(int i=0;i<m_NumClusters;i++){
-			insClusters[i] = new Instances(test,0);
-		}
-		double[] distance = new double[m_NumClusters];
-		for(int i=0;i<test.numInstances();i++){
-			for(int j=0;j<m_NumClusters;j++){
-				distance[j]=m_DistanceFunction.distance(testWithNoClass.instance(i), 
-						m_ClusterCentroids.instance(j));
-			}
-			int minIndex = Utils.minIndex(distance);
-			insClusters[minIndex].add(test.instance(i));
-			
-		}
-		//i是类别组，j是类别索引
-		Matrix matrix = new Matrix(m_NumClusters,m_NumClusters);
-		for(int i=0; i < m_NumClusters;i++){
-			for(int j=0; j < m_NumClusters;j++){
-				matrix.set(i, j, 0);
-			}
-		}
-		//类别值：类别索引
-		Map<String,Integer> map = new HashMap<>();
-		//类别值：类别索引
-		Map<Integer,String> reverseMap = new HashMap<>();
-		Enumeration<Object> className = test.classAttribute().enumerateValues();
-		for(int i=0;i<m_NumClusters;i++){
-			String element = (String)(className.nextElement());
-			map.put(element, i);
-			reverseMap.put(i, element);
-		}
-		for(int i=0;i<m_NumClusters;i++){
-			for(int j=0;j<insClusters[i].numInstances(); j++){
-				// 第i个类别组第j个instance的类别值
-				String key = insClusters[i].instance(j).stringValue(classIndex);
-				//第i个类别组第j个instance的类别索引
-				int col = map.get(key);
-				double val = matrix.get(i, col);
-//				System.out.println("val="+val);
-				matrix.set(i, col, val+1);
-			}
-		}
-		System.out.print(" real class ");
-		for(int i=0; i<m_NumClusters;i++){
-			System.out.print(reverseMap.get(i)+" ");
-		}
-		System.out.println();
-		for(int i=0;i<m_NumClusters;i++){
-			System.out.print("class "+i +": ");
-			for(int j=0;j<m_NumClusters;j++){
-				System.out.print(matrix.get(i,j)+" ");
-			}
-			System.out.println();
-		}
-		int errorSum=0;
-		double[][] array = matrix.getArray();
-		for(int i=0;i<m_NumClusters;i++){
-			int ix = Utils.maxIndex(array[i]);
-			for(int j=0;j<m_NumClusters;j++){
-				if(j!=ix){
-					errorSum+=array[i][j];
-				}
-			}
-		}
-		matrix = null;
-		m_DistanceFunction.clean();
-		return errorSum*1.0/test.numInstances();
-	}
-	public void cep(Instances data){
-		int mIter = 30;
-		Random rand = new Random();
-		int dataNum = data.numInstances();
-		int trainNum = (int)(0.75* dataNum);
-		int testNum = dataNum-trainNum;
-		Instances train = new Instances(data,trainNum);
-		Instances test = new Instances(data,testNum);
-		double mean=0;
-		double std =0;
-		double[] results = new double[mIter];
-		for(int k=0; k<mIter; k++){
-			train.clear();
-			test.clear();
-			data.randomize(rand);
-			for(int q=0;q<dataNum;q++){
-				if(q<trainNum){
-					train.add(data.instance(q));
-				}else{
-					test.add(data.instance(q));
-				}
-			}
-			Instances trainCopy = new Instances(train);
-			Instances testCopy = new Instances(test);
-			double result = predict(trainCopy,testCopy);
-			mean += result;
-			results[k]=result;
-			System.out.println("iter ="+k);
-		}
-		mean /= mIter;
-		for(int i=0;i<mIter; i++){
-			std += Math.pow(results[i]-mean, 2);
-		}
-		std = Math.sqrt(std);
-		System.out.println("the mean = " + mean+" the std = "+ std);
-	}
-	public static void main(String[] args) {
-		FuzzyCMeans fcm = new FuzzyCMeans();
-		String path = "dataset/segmentation-normalize.arff";
-		LoadData ld = new LoadData();
-		fcm.cep(ld.loadData(path));
-	}
+	
 }

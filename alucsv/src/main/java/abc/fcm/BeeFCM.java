@@ -145,14 +145,14 @@ public class BeeFCM extends RandomizableClusterer implements
 	
 	
 	/** The number of colony size (employed bees+onlooker bees) */
-	int NP = 200;
+	int NP = 100;
 	/** The number of food sources equals the half of the colony size */
 	int foodNum = NP / 2;
 	/**
 	 * A food source which could not be improved through "limit" trials is
 	 * abandoned by its employed bee
 	 */
-	int limit = 5;
+	int limit = 10;
 	/** The number of cycles for foraging {a stopping criteria} */
 	int maxCycle = 50;
 	int mCycle = 0;
@@ -214,10 +214,9 @@ public class BeeFCM extends RandomizableClusterer implements
 	
 	/** globalMins holds the minObjFunValue of each run in multiple runs */
 	double globalMins[] = new double[runCount];
+	Random rand = new Random();
 
 	public BeeFCM() {
-		m_SeedDefault = 10;
-		setSeed(m_SeedDefault);
 	}
 
 	/**
@@ -260,8 +259,7 @@ public class BeeFCM extends RandomizableClusterer implements
 	 */
 	@Override
 	public void buildClusterer(Instances data) throws Exception {
-		getCapabilities().testWithFail(data);
-		startExecutorPool();
+		
 		instances = new Instances(data);
 		m_NumClusters = instances.numClasses();
 		int classIndex = instances.classIndex();
@@ -270,11 +268,12 @@ public class BeeFCM extends RandomizableClusterer implements
 		}
 		instances.setClassIndex(-1);
 		instances.deleteAttributeAt(classIndex);
+		getCapabilities().testWithFail(instances);
+		startExecutorPool();
 		init();
 		double mean = 0;
 		for (int run = 0; run < runCount; run++) {
 			initial();
-			memorizeBestSource();
 			for (int iter = 0; iter < maxCycle; iter++) {
 				mCycle = iter+1;
 				sendEmployedBees();
@@ -284,7 +283,7 @@ public class BeeFCM extends RandomizableClusterer implements
 				calculateFcm();
 				memorizeBestSource();
 				sendScoutBees();
-				System.out.println("iter="+iter+" minObjFunValue="+minObjFunValue);
+//				System.out.println("iter="+iter+" minObjFunValue="+minObjFunValue);
 			}
 /*			
 			Instances ins = arrayToInstances(bestFood);
@@ -330,7 +329,7 @@ public class BeeFCM extends RandomizableClusterer implements
 	public void init(int index) {
 		double[] solution = new double[dimension];
 		for (int j = 0; j < dimension; j++) {
-			foods[index][j] = Math.random() * (ub - lb) + lb;
+			foods[index][j] = rand.nextDouble() * (ub - lb) + lb;
 			solution[j] = foods[index][j];
 		}
 		Instances centroids = arrayToInstances(solution);
@@ -351,7 +350,7 @@ public class BeeFCM extends RandomizableClusterer implements
 			double[] solution = new double[dimension];
 			for (int i = start; i < end; i++) {
 				for (int j = 0; j < dimension; j++) {
-					foods[i][j] = Math.random() * (ub - lb) + lb;
+					foods[i][j] = rand.nextDouble() * (ub - lb) + lb;
 					solution[j] = foods[i][j];
 				}
 				Instances centroids = arrayToInstances(solution);
@@ -408,8 +407,8 @@ public class BeeFCM extends RandomizableClusterer implements
 	 * @param index
 	 * @return
 	 */
-	public List<double[]> calculateNeighbor(int index){
-		List<double[]> neighbors = new ArrayList<>();
+	public List<Integer> calculateNeighbor(int index){
+		List<Integer> neighbors = new ArrayList<>();
 		double mean = calculateMean(index);
 		for(int i=0; i<foodNum; i++){
 			double total =0;
@@ -419,7 +418,7 @@ public class BeeFCM extends RandomizableClusterer implements
 				}
 			}
 			if(total < mean){
-				neighbors.add(foods[i]);
+				neighbors.add(i);
 			}
 		}
 		return neighbors;
@@ -430,21 +429,14 @@ public class BeeFCM extends RandomizableClusterer implements
 	 * @return X_{Nm}^best
 	 */
 	public double[] calculateNeighborBest(int index){
-		List<double[]> neighbors = calculateNeighbor(index);
-		double maxFit = lb;
-		double[] maxNeighbor = null;
-		for(double[] neighbor : neighbors){
-			Instances centroids = arrayToInstances(neighbor);
-			Matrix matrix = updateMemberShip(centroids);
-			double objVal = calculateObjectiveFunction(centroids, matrix);
-			double fitness = calculateFitness(objVal);
-			if(maxFit<fitness){
-				maxFit = fitness;
-				maxNeighbor = neighbor;
+		List<Integer> neighbors = calculateNeighbor(index);
+		int bestIndex = neighbors.get(0);
+		for(Integer neighbor : neighbors){
+			if(fitness[neighbor]>fitness[bestIndex]){
+				bestIndex = neighbor;
 			}
 		}
-		return maxNeighbor;
-		
+		return foods[bestIndex];
 	}
 	/** The best food source is memorized */
 	public void memorizeBestSource() {
@@ -476,7 +468,6 @@ private class EmployBeeTask implements Callable<Boolean>{
 		this.end = end;
 	}
 	public Boolean call(){
-		Random rand = new Random();
 		for (int i = start; i < end; i++) {
 			/* The parameter to be changed is determined randomly */
 			int dj = rand.nextInt(dimension);
@@ -562,7 +553,7 @@ private class EmployBeeTask implements Callable<Boolean>{
 			for(Future<Boolean> task : results){
 				task.get();
 			}
-			print();
+//			print();
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -570,13 +561,10 @@ private class EmployBeeTask implements Callable<Boolean>{
 
 
 	public void calculateProbabilities() {
-
 		double sum = 0;
-
 		for (int i = 0; i < foodNum; i++) {
 			sum += fitness[i];
 		}
-
 		for (int i = 0; i < foodNum; i++) {
 			prob[i] = fitness[i] / sum;
 		}
@@ -586,12 +574,10 @@ private class EmployBeeTask implements Callable<Boolean>{
 		private int start;
 		private int end;
 		private int neighbour;
-		private Random rand;
-		public OnlookerBeeTask(int start,int end,int neighbour,Random rand){
+		public OnlookerBeeTask(int start,int end,int neighbour){
 			this.start=start;
 			this.end = end;
 			this.neighbour = neighbour;
-			this.rand = rand;
 		}
 		public Boolean call(){
 			double[] solution = new double[dimension];
@@ -661,32 +647,15 @@ private class EmployBeeTask implements Callable<Boolean>{
 		Random rand = new Random();
 		List<Future<Boolean>> results = new ArrayList<Future<Boolean>>();
 		while (t < foodNum) {
-			double r = Math.random();
-//			r = ((double) Math.random() * 32767 / ((double) (32767) + (double) (1)));
-			/*
-			 * choose a food source depending on its probability to be chosen
-			 */
+			double r = rand.nextDouble();
 			if (r < prob[i]) {
 				t++;
-
-				/* The parameter to be changed is determined randomly */
 				int dj = rand.nextInt(dimension);
-
-				/*
-				 * A randomly chosen solution is used in producing a mutant
-				 * solution of the solution i
-				 */
 				int neighbour = rand.nextInt(foodNum);
-
-				/*
-				 * Randomly selected solution must be different from the
-				 * solution i
-				 */
 				while (neighbour == i) {
-					// System.out.println(Math.random()*32767+"  "+32767);
 					neighbour = rand.nextInt(foodNum);
 				}
-				results.add(m_executorPool.submit(new OnlookerBeeTask( i, dj,neighbour,rand)));
+				results.add(m_executorPool.submit(new OnlookerBeeTask( i, dj,neighbour)));
 			}
 			i++;
 			if (i == foodNum)
@@ -696,11 +665,10 @@ private class EmployBeeTask implements Callable<Boolean>{
 			for(Future<Boolean> task : results){
 				task.get();
 			}
-			print();
+//			print();
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		/* end of onlooker bee phase */
 	}
 
 	/*
@@ -748,18 +716,7 @@ private class EmployBeeTask implements Callable<Boolean>{
 				matrix = updateMemberShip(centroids);
 				double objValSol = calculateObjectiveFunction(centroids, matrix);
 				double fitnessSol = calculateFitness(objValSol);
-
-				/*
-				 * a greedy selection is applied between the current solution i and
-				 * its mutant
-				 */
 				if (fitnessSol > fitness[i]) {
-
-					/**
-					 * If the mutant solution is better than the current solution i,
-					 * replace the solution with the mutant and reset the trial
-					 * counter of solution i
-					 * */
 					trial[i] = 0;
 					double[] newSolution = instancesToArray(centroids);
 					for (int j = 0; j < dimension; j++){
@@ -774,10 +731,6 @@ private class EmployBeeTask implements Callable<Boolean>{
 					funVal[i] = objValSol;
 					fitness[i] = fitnessSol;
 				} else {
-					/*
-					 * if the solution i can not be improved, increase its trial
-					 * counter
-					 */
 					trial[i] = trial[i] + 1;
 				}
 			}
@@ -799,7 +752,7 @@ private class EmployBeeTask implements Callable<Boolean>{
 			for(Future<Boolean> task : results){
 				task.get();
 			}
-			print();
+//			print();
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -1234,6 +1187,11 @@ private class EmployBeeTask implements Callable<Boolean>{
 	 */
 	public void setFastDistanceCalc(boolean value) {
 		m_FastDistanceCalc = value;
+	}
+	
+	public void setSeed(int seed){
+		m_Seed = seed;
+		rand.setSeed(seed);
 	}
 
 	/**
@@ -1724,134 +1682,5 @@ private class EmployBeeTask implements Callable<Boolean>{
 
 		temp.append("\n\n");
 		return temp.toString();
-	}
-	
-public double predict(Instances data,Instances test){
-		
-		int classIndex = data.attribute("class").index();
-		test.setClassIndex(classIndex);
-		data.deleteAttributeType(Attribute.NOMINAL);
-		data.setClassIndex(-1);
-		Instances testWithNoClass = new Instances(test);
-		testWithNoClass.setClassIndex(-1);
-		testWithNoClass.deleteAttributeType(Attribute.NOMINAL);
-		
-		try {
-			buildClusterer(data);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		Instances[] insClusters = new Instances[m_NumClusters];
-		for(int i=0;i<m_NumClusters;i++){
-			insClusters[i] = new Instances(test,0);
-		}
-		double[] distance = new double[m_NumClusters];
-		for(int i=0;i<test.numInstances();i++){
-			for(int j=0;j<m_NumClusters;j++){
-				distance[j]=m_DistanceFunction.distance(testWithNoClass.instance(i), 
-						m_ClusterCentroids.instance(j));
-			}
-			int minIndex = Utils.minIndex(distance);
-			insClusters[minIndex].add(test.instance(i));
-			
-		}
-		//i是类别组，j是类别索引
-		Matrix matrix = new Matrix(m_NumClusters,m_NumClusters);
-		for(int i=0; i < m_NumClusters;i++){
-			for(int j=0; j < m_NumClusters;j++){
-				matrix.set(i, j, 0);
-			}
-		}
-		//类别值：类别索引
-		Map<String,Integer> map = new HashMap<>();
-		//类别值：类别索引
-		Map<Integer,String> reverseMap = new HashMap<>();
-		Enumeration<Object> className = test.classAttribute().enumerateValues();
-		for(int i=0;i<m_NumClusters;i++){
-			String element = (String)(className.nextElement());
-			map.put(element, i);
-			reverseMap.put(i, element);
-		}
-		for(int i=0;i<m_NumClusters;i++){
-			for(int j=0;j<insClusters[i].numInstances(); j++){
-				// 第i个类别组第j个instance的类别值
-				String key = insClusters[i].instance(j).stringValue(classIndex);
-				//第i个类别组第j个instance的类别索引
-				int col = map.get(key);
-				double val = matrix.get(i, col);
-//				System.out.println("val="+val);
-				matrix.set(i, col, val+1);
-			}
-		}
-		System.out.print(" real class ");
-		for(int i=0; i<m_NumClusters;i++){
-			System.out.print(reverseMap.get(i)+" ");
-		}
-		System.out.println();
-		for(int i=0;i<m_NumClusters;i++){
-			System.out.print("class "+i +": ");
-			for(int j=0;j<m_NumClusters;j++){
-				System.out.print(matrix.get(i,j)+" ");
-			}
-			System.out.println();
-		}
-		int errorSum=0;
-		double[][] array = matrix.getArray();
-		for(int i=0;i<m_NumClusters;i++){
-			int ix = Utils.maxIndex(array[i]);
-			for(int j=0;j<m_NumClusters;j++){
-				if(j!=ix){
-					errorSum+=array[i][j];
-				}
-			}
-		}
-		matrix = null;
-		m_DistanceFunction.clean();
-		return errorSum*1.0/test.numInstances();
-	}
-	public void cep(Instances data){
-		int mIter = 30;
-		Random rand = new Random();
-		int dataNum = data.numInstances();
-		int trainNum = (int)(0.75* dataNum);
-		int testNum = dataNum-trainNum;
-		Instances train = new Instances(data,trainNum);
-		Instances test = new Instances(data,testNum);
-		double mean=0;
-		double std =0;
-		double[] results = new double[mIter];
-		for(int k=0; k<mIter; k++){
-			train.clear();
-			test.clear();
-			data.randomize(rand);
-			for(int q=0;q<dataNum;q++){
-				if(q<trainNum){
-					train.add(data.instance(q));
-				}else{
-					test.add(data.instance(q));
-				}
-			}
-			Instances trainCopy = new Instances(train);
-			Instances testCopy = new Instances(test);
-			double result = predict(trainCopy,testCopy);
-			mean += result;
-			results[k]=result;
-			System.out.println("iter ="+k);
-		}
-		mean /= mIter;
-		for(int i=0;i<mIter; i++){
-			std += Math.pow(results[i]-mean, 2);
-		}
-		std = Math.sqrt(std);
-		System.out.println("the mean = " + mean+" the std = "+ std);
-	}
-
-	public static void main(String[] args) {
-		BeeFCM bfcm = new BeeFCM();
-		String path = "dataset/iris-normalize.arff";
-		LoadData ld = new LoadData();
-		bfcm.cep(ld.loadData(path));
 	}
 }
