@@ -14,8 +14,8 @@ public class Evaluation {
 	
 	public Evaluation(){
 //		cluster = new ABCSimpleFCM();
-//		cluster = new BeeFCM();
-		cluster = new FuzzyCMeans();
+		cluster = new BeeFCM();
+//		cluster = new FuzzyCMeans();
 	}
 	public void setCluster(RandomizableClusterer cluster){
 		this.cluster = cluster;

@@ -2,17 +2,13 @@ package abc.fcm;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import cluster.LoadData;
 import weka.clusterers.NumberOfClustersRequestable;
 import weka.clusterers.RandomizableClusterer;
 import weka.core.Attribute;
@@ -641,7 +637,7 @@ private class EmployBeeTask implements Callable<Boolean>{
 	/** onlooker Bee Phase */
 	public void sendOnlookerBees() {
 
-		int i, j, t;
+		int i, t;
 		i = 0;
 		t = 0;
 		Random rand = new Random();

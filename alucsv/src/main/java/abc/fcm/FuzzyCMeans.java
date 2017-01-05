@@ -243,7 +243,7 @@ public class FuzzyCMeans extends RandomizableClusterer implements
 				}
 			}
 		}
-
+		m_initialStartPoints = new Instances(instances, m_NumClusters);
 		m_ClusterCentroids = new Instances(instances, m_NumClusters);
 		memberShip = new Matrix(instances.numInstances(), m_NumClusters);
 /*		
@@ -252,7 +252,6 @@ public class FuzzyCMeans extends RandomizableClusterer implements
 		}
 */		
 		m_DistanceFunction.setInstances(instances);
-		m_NumClusters = m_ClusterCentroids.numInstances();
 		m_squaredErrors = new double[m_NumClusters];
 		m_ClusterNominalCounts = new double[m_NumClusters][instances.numAttributes()][0];
 		m_ClusterMissingCounts = new double[m_NumClusters][instances.numAttributes()];
@@ -289,14 +288,15 @@ public class FuzzyCMeans extends RandomizableClusterer implements
 			}
 		}
 	}
-	public void initCentroids(Instances instances){
-		double[] attributes = new double[instances.numAttributes()];
-		for(int i=0; i< attributes.length; i++){
-			attributes[i]=rand.nextDouble();
-		}
+	private void initCentroids(Instances instances){
 		for(int i=0; i<m_NumClusters; i++){
+			double[] attributes = new double[instances.numAttributes()];
+			for(int j=0; j< attributes.length; j++){
+				attributes[j]=rand.nextDouble();
+			}
 			Instance in = new DenseInstance(1.0, attributes);
 			m_ClusterCentroids.add(in);
+			m_initialStartPoints.add(in);
 		}
 	}
 

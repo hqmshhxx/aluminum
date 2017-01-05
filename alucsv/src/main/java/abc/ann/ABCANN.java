@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import cluster.LoadData;
 import weka.core.Instances;
 import weka.core.Utils;
 
@@ -508,45 +507,5 @@ public class ABCANN {
 		}
 		System.out.println("人工蜂群的最小值：" + getMinObjFunValue());
 		
-	}
-	public static void main(String[] args) {
-		ABCANN bee = new ABCANN();
-		String path = "dataset";
-		LoadData ld = new LoadData();
-		bee.setData(ld.loadData(path));
-		bee.setInputNum(13);
-		bee.setHiddenNum(3);
-		bee.setOutNum(1);
-		double mean = 0;
-		for (int run = 0; run < bee.runCount; run++) {
-			bee.initial();
-			bee.memorizeBestSource();
-			for (int iter = 0; iter < bee.maxCycle; iter++) {
-				bee.mCycle = iter+1;
-				bee.sendEmployedBees();
-				bee.calculateProbabilities();
-				bee.sendOnlookerBees();
-				bee.memorizeBestSource();
-				bee.sendScoutBees();
-			}
-			bee.globalMins[run] = bee.minObjFunValue;
-			mean = mean + bee.minObjFunValue;
-		}
-
-		int maxIndex = Utils.maxIndex(bee.globalMins);
-		int minIndex = Utils.minIndex(bee.globalMins);
-		double max = bee.globalMins[maxIndex];
-		double min = bee.globalMins[minIndex];
-
-		mean = mean / bee.runCount;
-
-		double stdError = 0;
-
-		for (int j = 0; j < bee.runCount; j++) {
-			stdError += Math.pow(bee.globalMins[j] - mean, 2);
-		}
-		stdError /= bee.runCount;
-		System.out.println("maxFunVal=" + max + " minFunVal=" + min + " mean="
-				+ mean + " stdError=" + stdError);
 	}
 }
