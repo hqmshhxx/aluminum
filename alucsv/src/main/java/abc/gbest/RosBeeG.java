@@ -23,14 +23,14 @@ public class RosBeeG {
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
-	int dimension = 20;
+	int dimension = 50;
 	/** lower bound of the parameters. */
-	double lb = -30.0;
+	double lb = -50.0;
 	/**
 	 * upper bound of the parameters. lb and ub can be defined as arrays for the
 	 * problems of which parameters have different bounds
 	 */
-	double ub = 30.0;
+	double ub = 50.0;
 
 	/** Algorithm can be run many times in order to see its robustness */
 	int runtime = 30;

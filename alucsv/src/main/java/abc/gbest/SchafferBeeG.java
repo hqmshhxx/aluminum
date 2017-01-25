@@ -1,4 +1,4 @@
-package abc.standard;
+package abc.gbest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.Random;
 
 import weka.core.Utils;
 
-public class RosBeeImpr {
+public class SchafferBeeG {
 
 	/** The number of colony size (employed bees+onlooker bees) */
 	int NP = 200;
@@ -25,12 +25,12 @@ public class RosBeeImpr {
 	/** The number of parameters of the problem to be optimized */
 	int dimension = 50;
 	/** lower bound of the parameters. */
-	double lb = -50.0;
+	double lb = -100;
 	/**
 	 * upper bound of the parameters. lb and ub can be defined as arrays for the
 	 * problems of which parameters have different bounds
 	 */
-	double ub = 50.0;
+	double ub = 100;
 
 	/** Algorithm can be run many times in order to see its robustness */
 	int runtime = 30;
@@ -327,15 +327,16 @@ public class RosBeeImpr {
 				}
 				for (j = 0; j < dimension; j++)
 					solution[j] = foods[i][j];
-				double[] bestNeighbor = calculateNeighborBest(i);
+//				double[] bestNeighbor = calculateNeighborBest(i);
+				
 				int minIndex = Utils.minIndex(funVal);
 				
 				/* v_{ij}=x_{ij}+\phi_{ij}*(x_{kj}-x_{ij}) */
 				
 				r = rand.nextDouble() * 2 - 1;
-				solution[param2change] =  bestNeighbor[param2change]
-						+ (bestNeighbor[param2change] - foods[neighbour][param2change])* r+
-						rand.nextDouble()*1.5*(foods[minIndex][param2change]-bestNeighbor[param2change]);
+				solution[param2change] =  foods[i][param2change]
+						+ (foods[i][param2change] - foods[neighbour][param2change])* r+
+						rand.nextDouble()*1.5*(foods[minIndex][param2change]-foods[i][param2change]);
 
 				/*
 				 * if generated parameter value is out of boundaries, it is
@@ -413,8 +414,28 @@ public class RosBeeImpr {
 	 * @return
 	 */
 	public double calculateFunction(double sol[]) {
-		return Rosenbrock(sol);
+		return schaffer(sol);
 
+	}
+	double schaffer(double[] sol){
+		double sum =0;
+		double val = 0;
+		for (int j = 0; j < dimension; j++) {
+			sum += sol[j] * sol[j];
+		}
+		val  = 0.5+(Math.pow(Math.sin(Math.sqrt(sum)), 2)-0.5)/Math.pow(1+0.001*sum,2);
+		return val;
+	}
+	double ackley(double[] sol){
+		double top1 = 0;
+		double top2 = 0;
+		double val = 0;
+		for(int j=0; j<dimension; j++){
+			top1 += sol[j]*sol[j];
+			top2 += Math.cos(2*Math.PI*sol[j]);
+		}
+		val = 20+Math.E - 20*Math.exp(-0.2*Math.sqrt(top1/dimension))-Math.exp(top2/dimension);
+		return val;
 	}
 
 	double sphere(double sol[]) {
@@ -467,7 +488,7 @@ public class RosBeeImpr {
 	}
 
 	public static void main(String[] args) {
-		RosBeeImpr bee = new RosBeeImpr();
+		SchafferBeeG bee = new SchafferBeeG();
 		int iter = 0;
 		int run = 0;
 		int j = 0;

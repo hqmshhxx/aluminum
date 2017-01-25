@@ -23,7 +23,7 @@ public class RasBeeImpr {
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
-	int dimension = 20;
+	int dimension = 50;
 	/** lower bound of the parameters. */
 	double lb = -5.12;
 	/**
@@ -236,7 +236,8 @@ public class RasBeeImpr {
 			r = rand.nextDouble() * 2 - 1;
 			solution[param2change] = foods[i][param2change]
 					+ (foods[i][param2change] - foods[neighbour][param2change])
-					* r*(1 + 1/(Math.exp(-maxCycle*1.0/mCycle)+1));
+					* r;
+					//*(1 + 1/(Math.exp(-maxCycle*1.0/mCycle)+1));
 
 			/*
 			 * if generated parameter value is out of boundaries, it is shifted

@@ -23,7 +23,7 @@ public class RasBeeG {
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
-	int dimension = 20;
+	int dimension = 50;
 	/** lower bound of the parameters. */
 	double lb = -5.12;
 	/**

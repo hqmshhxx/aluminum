@@ -1,4 +1,4 @@
-package abc.standard;
+package abc.standard.noName.single;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.Random;
 
 import weka.core.Utils;
 
-public class RosBeeImpr {
+public class F4BeeImpr {
 
 	/** The number of colony size (employed bees+onlooker bees) */
 	int NP = 200;
@@ -19,21 +19,21 @@ public class RosBeeImpr {
 	int limit = 100;
 	/** The number of cycles for foraging {a stopping criteria} */
 	int maxCycle = 1000;
-	int mCycle = 0;
 
 	/** Problem specific variables */
 	/** The number of parameters of the problem to be optimized */
 	int dimension = 50;
 	/** lower bound of the parameters. */
-	double lb = -50.0;
+	double lb = -10.0;
 	/**
 	 * upper bound of the parameters. lb and ub can be defined as arrays for the
 	 * problems of which parameters have different bounds
 	 */
-	double ub = 50.0;
+	double ub = 10.0;
 
 	/** Algorithm can be run many times in order to see its robustness */
 	int runtime = 30;
+	int mCycle = 0;
 
 	/**
 	 * foods is the population of food sources. Each row of foods matrix is a
@@ -235,7 +235,7 @@ public class RosBeeImpr {
 			/* v_{ij}=x_{ij}+\phi_{ij}*(x_{kj}-x_{ij}) */
 			r = rand.nextDouble() * 2 - 1;
 			solution[param2change] = foods[i][param2change]
-					+ (foods[i][param2change] - foods[neighbour][param2change]) * r;
+					+ (foods[i][param2change] - foods[neighbour][param2change])* r;
 
 			/*
 			 * if generated parameter value is out of boundaries, it is shifted
@@ -328,14 +328,13 @@ public class RosBeeImpr {
 				for (j = 0; j < dimension; j++)
 					solution[j] = foods[i][j];
 				double[] bestNeighbor = calculateNeighborBest(i);
-				int minIndex = Utils.minIndex(funVal);
 				
 				/* v_{ij}=x_{ij}+\phi_{ij}*(x_{kj}-x_{ij}) */
 				
 				r = rand.nextDouble() * 2 - 1;
 				solution[param2change] =  bestNeighbor[param2change]
 						+ (bestNeighbor[param2change] - foods[neighbour][param2change])* r+
-						rand.nextDouble()*1.5*(foods[minIndex][param2change]-bestNeighbor[param2change]);
+						rand.nextDouble()*1.5*(globalParams[param2change]-bestNeighbor[param2change]);
 
 				/*
 				 * if generated parameter value is out of boundaries, it is
@@ -413,61 +412,23 @@ public class RosBeeImpr {
 	 * @return
 	 */
 	public double calculateFunction(double sol[]) {
-		return Rosenbrock(sol);
+		return f4(sol);
 
 	}
 
-	double sphere(double sol[]) {
-		int j;
-		double top = 0;
-		for (j = 0; j < dimension; j++) {
-			top = top + sol[j] * sol[j];
+	//f2
+	public double f4(double sol[]){
+		double a=0;
+		double b=0;
+		for(int i=0; i<dimension; i++){
+			a += Math.abs(sol[i]);
+			b *= Math.abs(sol[i]);
 		}
-		return top;
+		return a+b;
 	}
-
-	double Rosenbrock(double sol[]) {
-		int j;
-		double top = 0;
-		for (j = 0; j < dimension - 1; j++) {
-			top = top
-					+ 100
-					* Math.pow((sol[j + 1] - Math.pow((sol[j]), (double) 2)),
-							(double) 2) + Math.pow((sol[j] - 1), (double) 2);
-		}
-		return top;
-	}
-
-	double Griewank(double sol[]) {
-		int j;
-		double top1, top2, top;
-		top = 0;
-		top1 = 0;
-		top2 = 1;
-		for (j = 0; j < dimension; j++) {
-			top1 = top1 + Math.pow((sol[j]), (double) 2);
-			top2 = top2
-					* Math.cos((((sol[j]) / Math.sqrt((double) (j + 1))) * Math.PI) / 180);
-
-		}
-		top = (1 / (double) 4000) * top1 - top2 + 1;
-		return top;
-	}
-
-	public double Rastrigin(double sol[]) {
-		int j;
-		double top = 0;
-
-		for (j = 0; j < dimension; j++) {
-			top = top
-					+ (Math.pow(sol[j], (double) 2) - 10
-							* Math.cos(2 * Math.PI * sol[j]) + 10);
-		}
-		return top;
-	}
-
+	
 	public static void main(String[] args) {
-		RosBeeImpr bee = new RosBeeImpr();
+		F4BeeImpr bee = new F4BeeImpr();
 		int iter = 0;
 		int run = 0;
 		int j = 0;
