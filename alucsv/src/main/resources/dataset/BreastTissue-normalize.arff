@@ -1,6 +1,6 @@
 @relation BreastTissue-weka.filters.unsupervised.attribute.Remove-R1-weka.filters.unsupervised.attribute.Normalize-S1.0-T0.0
 
-@attribute Class {car,fad,mas,gla,con,adi}
+@attribute class {car,fad,mas,gla,con,adi}
 @attribute I0 numeric
 @attribute PA500 numeric
 @attribute HFS numeric

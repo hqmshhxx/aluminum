@@ -11,7 +11,7 @@ public class ABCANN {
 
 
 	/** The number of colony size (employed bees+onlooker bees) */
-	int NP = 100;
+	int NP = 50;
 	/** The number of food sources equals the half of the colony size */
 	int foodNum = NP / 2;
 	/**
@@ -20,7 +20,7 @@ public class ABCANN {
 	 */
 	int limit = 10;
 	/** The number of cycles for foraging {a stopping criteria} */
-	int maxCycle = 100;
+	int maxCycle = 10;
 	int mCycle = 0;
 
 	/** Problem specific variables */
@@ -209,7 +209,8 @@ public class ABCANN {
 			/* v_{ij}=x_{ij}+\phi_{ij}*(x_{kj}-x_{ij}) */
 			double r = rand.nextDouble() * 2 - 1;
 			solution[dj] = foods[i][dj]+ (foods[i][dj] - foods[foodi][dj])
-					* r*(1 + 1/(Math.exp(-maxCycle*1.0/mCycle)+1));
+					* r;
+					//*(1 + 1/(Math.exp(-maxCycle*1.0/mCycle)+1));
 
 			/*
 			 * if generated parameter value is out of boundaries, it is shifted
@@ -496,13 +497,13 @@ public class ABCANN {
 		for (int iter = 0; iter < maxCycle; iter++) {
 			mCycle = iter + 1;
 			sendEmployedBees();
-			System.out.println("sendEmployedBees finished ");
+//			System.out.println("sendEmployedBees finished ");
 			calculateProbabilities();
 			sendOnlookerBees();
-			System.out.println("sendOnlookerBees finished ");
+//			System.out.println("sendOnlookerBees finished ");
 			memorizeBestSource();
 			sendScoutBees();
-			System.out.println("sendScoutBees finished ");
+//			System.out.println("sendScoutBees finished ");
 			System.out.println("\nmcycle = " + mCycle+"\n");
 		}
 		System.out.println("人工蜂群的最小值：" + getMinObjFunValue());

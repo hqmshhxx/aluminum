@@ -110,7 +110,7 @@ public class ABCBP {
 	}
 	public void classifier(Instances data)  throws Exception{
 		Random rand = new Random();
-		int mIter = 10;
+		int mIter = 5;
 		int dataNum = data.numInstances();
 		int trainNum = (int) (0.6 * dataNum);
 		int testNum = dataNum - trainNum;
@@ -193,27 +193,27 @@ public class ABCBP {
 	
 
 	public void cep() throws Exception {
-		String path = "dataset/iris-normalize.arff";
+		String path = "dataset/winequality-red-normalize.arff";
 		LoadData ld = new LoadData();
 		Instances data = ld.loadData(path);
 		data.setClassIndex(data.numAttributes()-1);
+//		data.setClassIndex(0);
+		long start = System.currentTimeMillis();
 		classifier(data);
+		long end = System.currentTimeMillis();
+		System.out.println((end-start)/1000+"s");
 		
 	}
 	public static void main(String[] args) {
 		ABCBP abcBp = new ABCBP();
-		long start = System.currentTimeMillis();
 		long end = 0;
 		try {
 			abcBp.cep();
-			end = System.currentTimeMillis();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-			long duration = (end -start)/1000;
-			System.out.print("duration time is "+ duration+ " 秒");
-			System.out.println("iris  finished");
+			System.out.println("finished");
 		}
 	}
 

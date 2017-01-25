@@ -1829,7 +1829,8 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 
 	public void buildNetwork(Instances i) throws Exception {
 
-		i.setClassIndex(i.numAttributes() - 1);
+//		i.setClassIndex(i.numAttributes() - 1);
+		
 		// can classifier handle the data?
 		getCapabilities().testWithFail(i);
 
@@ -2742,7 +2743,6 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 	
 	public void predict(Instances train) throws Exception {
 		buildNetwork(train);
-		System.out.println(m_instances.numInstances());
 		buildClassifier(null);
 	}
 
@@ -2832,11 +2832,15 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 	
 
 	public void cep() throws Exception {
-		String path = "dataset/breast-cancer-wisconsin-normalize.arff";
+		String path = "dataset/winequality-red-normalize.arff";
 		LoadData ld = new LoadData();
 		Instances data = ld.loadData(path);
 		data.setClassIndex(data.numAttributes()-1);
+//		data.setClassIndex(0);
+		long start = System.currentTimeMillis();
 		classifier(data);
+		long end = System.currentTimeMillis();
+		System.out.println((end-start)/1000+"s");
 		
 	}
 
