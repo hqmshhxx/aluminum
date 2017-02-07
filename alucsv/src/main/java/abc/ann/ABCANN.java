@@ -11,7 +11,7 @@ public class ABCANN {
 
 
 	/** The number of colony size (employed bees+onlooker bees) */
-	int NP = 50;
+	int NP = 20;
 	/** The number of food sources equals the half of the colony size */
 	int foodNum = NP / 2;
 	/**
@@ -27,12 +27,12 @@ public class ABCANN {
 	/** The number of parameters of the problem to be optimized */
 	int dimension = 0;
 	/** lower bound of the parameters. */
-	double lb = -10;
+	double lb = 0;
 	/**
 	 * upper bound of the parameters. lb and ub can be defined as arrays for the
 	 * problems of which parameters have different bounds
 	 */
-	double ub = 10;
+	double ub = 1;
 
 	/** Algorithm can be run many times in order to see its robustness */
 	int runCount = 30;
@@ -494,17 +494,21 @@ public class ABCANN {
 		System.out.println("start abc");
 		initial();
 		memorizeBestSource();
+		double min = minObjFunValue;
 		for (int iter = 0; iter < maxCycle; iter++) {
 			mCycle = iter + 1;
+			System.out.println("\nmcycle = " + mCycle+"\n");
 			sendEmployedBees();
 //			System.out.println("sendEmployedBees finished ");
 			calculateProbabilities();
 			sendOnlookerBees();
 //			System.out.println("sendOnlookerBees finished ");
 			memorizeBestSource();
+			if(Math.abs(min-minObjFunValue)<0.00001) break;
+			min = minObjFunValue;
 			sendScoutBees();
 //			System.out.println("sendScoutBees finished ");
-			System.out.println("\nmcycle = " + mCycle+"\n");
+		
 		}
 		System.out.println("人工蜂群的最小值：" + getMinObjFunValue());
 		

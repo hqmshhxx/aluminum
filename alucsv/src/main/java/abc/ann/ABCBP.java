@@ -110,7 +110,7 @@ public class ABCBP {
 	}
 	public void classifier(Instances data)  throws Exception{
 		Random rand = new Random();
-		int mIter = 5;
+		int mIter = 10;	
 		int dataNum = data.numInstances();
 		int trainNum = (int) (0.6 * dataNum);
 		int testNum = dataNum - trainNum;
@@ -193,7 +193,7 @@ public class ABCBP {
 	
 
 	public void cep() throws Exception {
-		String path = "dataset/winequality-red-normalize.arff";
+		String path = "dataset/heart-disease-normalize.arff";
 		LoadData ld = new LoadData();
 		Instances data = ld.loadData(path);
 		data.setClassIndex(data.numAttributes()-1);
@@ -201,7 +201,7 @@ public class ABCBP {
 		long start = System.currentTimeMillis();
 		classifier(data);
 		long end = System.currentTimeMillis();
-		System.out.println((end-start)/1000+"s");
+		System.out.println((end-start)*1.0/1000+"s");
 		
 	}
 	public static void main(String[] args) {
@@ -213,7 +213,7 @@ public class ABCBP {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-			System.out.println("finished");
+			System.out.println(" finished");
 		}
 	}
 
