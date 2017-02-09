@@ -72,7 +72,7 @@ public class Extract {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		Extract ex=new Extract();
-		String path="/home/ucas/software/aluminium-electrolysis/CSV日报/CSV一厂房日报/CSV一厂一区";
+		String path="/home/ucas/software/aluminum-electrolysis/CSV日报/CSV一厂房日报/CSV一厂一区";
 //		String toPathName="85.93-85-88-90";
 //		String toPathName="85.96-85-88-90";
 //		String toPathName="88.96-88-90-93";

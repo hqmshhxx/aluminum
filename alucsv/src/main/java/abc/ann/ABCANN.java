@@ -494,23 +494,23 @@ public class ABCANN {
 		System.out.println("start abc");
 		initial();
 		memorizeBestSource();
-		double min = minObjFunValue;
+//		double min = minObjFunValue;
 		for (int iter = 0; iter < maxCycle; iter++) {
 			mCycle = iter + 1;
-			System.out.println("\nmcycle = " + mCycle+"\n");
+			System.out.println("mcycle = " + mCycle+"\n");
 			sendEmployedBees();
 //			System.out.println("sendEmployedBees finished ");
 			calculateProbabilities();
 			sendOnlookerBees();
 //			System.out.println("sendOnlookerBees finished ");
 			memorizeBestSource();
-			if(Math.abs(min-minObjFunValue)<0.00001) break;
-			min = minObjFunValue;
+//			if(Math.abs(min-minObjFunValue)<0.0000001) break;
+//			min = minObjFunValue;
 			sendScoutBees();
 //			System.out.println("sendScoutBees finished ");
 		
 		}
-		System.out.println("人工蜂群的最小值：" + getMinObjFunValue());
+//		System.out.println("人工蜂群的最小值：" + getMinObjFunValue());
 		
 	}
 }

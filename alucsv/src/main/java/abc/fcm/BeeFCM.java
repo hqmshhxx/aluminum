@@ -48,7 +48,7 @@ public class BeeFCM extends RandomizableClusterer implements
 	/**
 	 * number of clusters to generate. 产生聚类个数
 	 */
-	protected int m_NumClusters = 2;
+	protected int m_NumClusters = 1;
 	
 	/**
 	 * holds the cluster centroids. 聚类中心
@@ -257,7 +257,10 @@ public class BeeFCM extends RandomizableClusterer implements
 	public void buildClusterer(Instances data) throws Exception {
 		
 		instances = new Instances(data);
-		m_NumClusters = instances.numClasses();
+		if(m_NumClusters == 1){
+			m_NumClusters = instances.numClasses();
+		}
+		System.out.println(m_NumClusters);
 		int classIndex = instances.classIndex();
 		if(classIndex < 0){
 			throw new Exception("no class label");
@@ -396,7 +399,7 @@ public class BeeFCM extends RandomizableClusterer implements
 			}
 			sum+=total;
 		}
-		return sum/(foodNum-1);
+		return sum*1.0/(foodNum-1);
 	}
 	/**
 	 * calculate the  neighbor of  X_{m} and itself (N_{m})
@@ -413,9 +416,12 @@ public class BeeFCM extends RandomizableClusterer implements
 					total += Math.pow(foods[index][j] - foods[i][j], 2);
 				}
 			}
-			if(total < mean){
+			if(total <= mean){
 				neighbors.add(i);
 			}
+		}
+		if(neighbors.size()==0){
+			System.out.println("size is 0");
 		}
 		return neighbors;
 	}
@@ -447,7 +453,6 @@ public class BeeFCM extends RandomizableClusterer implements
 				bestMS.set(m, n, matrixs[minIndex].get(m, n));
 			}
 		}
-		
 	}
 	public void print(){
 		for(double val :funVal){
@@ -643,7 +648,7 @@ private class EmployBeeTask implements Callable<Boolean>{
 		Random rand = new Random();
 		List<Future<Boolean>> results = new ArrayList<Future<Boolean>>();
 		while (t < foodNum) {
-			double r = rand.nextDouble();
+			double r = rand.nextDouble()/10;
 			if (r < prob[i]) {
 				t++;
 				int dj = rand.nextInt(dimension);

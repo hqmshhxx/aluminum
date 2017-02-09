@@ -17,7 +17,7 @@ public class Todb {
 	private String password = "123456";
 	private Connection conn = null;
 	private PreparedStatement ps = null;
-	private String sql = "insert into aldata(cao_id,cao_ling,cao_xing,yunxingshijian,jialiaoliang,jialiaocishu,"
+	private String sql = "insert into aldata(caoid,caoling,caoxing,yunxingshijian,jialiaoliang,jialiaocishu,"
 			+ "dianyayusheding,dianyashijisheding,gongzuoshidianya,pingjundianya,zaosheng,yangjixingchengri,"
 			+ "yangjixingchengdunlv,dianjiewendu,fenzibi,alfjialiaosheding,alfjialiaoshiji,lvshuiping,dianjiezhishuiping,"
 			+ "shijichulvliang,zuorichulvzhishiliang,jinrichulvzhishiliang,fehanliang,sihanliang,dianliu,dianliuxiaolv,riqi,class)"
@@ -55,9 +55,11 @@ public class Todb {
 				}
 				ps.executeBatch();
 				conn.commit();
+				System.out.println("insert success");
 			} catch (SQLException sqle) {
 				try {
 					conn.rollback();
+					System.out.println("insert false");
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -83,7 +85,8 @@ public class Todb {
 	public void toDb(String fileName, List<String> fileLines)
 			throws SQLException {
 		String dst = fileName.substring(0, fileName.length() - 4);
-		Date d = Date.valueOf(dst.substring(4));
+//		Date d = Date.valueOf(dst.substring(4));
+		Date d = Date.valueOf(dst);
 		for (String line : fileLines) {
 			String[] strs = line.split(",");
 			for (int i = 1; i <= strs.length; i++) {
@@ -115,7 +118,7 @@ public class Todb {
 	
 	public static void main(String[] args) {
 		Todb toDb = new Todb();
-		String filePath = "/home/ucas/software/aluminium-electrolysis/CSV日报/CSV二厂房日报/CSV二厂二区";
+		String filePath = "/home/ucas/software/aluminum-electrolysis/CSV日报/CSV二厂房日报/CSV二厂二区/2016-1-1_2016-7-12";
 		toDb.service(filePath);
 		System.out.println("over");
 	}

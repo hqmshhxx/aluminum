@@ -173,10 +173,10 @@ public class Convert {
 		Convert convert = new Convert();
 		try {
 	
-			convert.readExcelTitle("/home/ucas/software/aluminium-electrolysis/1-1-2015-10-1-csv.csv");
+			convert.readExcelTitle("/home/ucas/software/aluminum-electrolysis/1-1-2015-10-1-csv.csv");
 			convert.convertExcelFiles(
-					"/home/ucas/software/aluminium-electrolysis/二厂房日报/二厂二区", 
-					"/home/ucas/software/aluminium-electrolysis/CSV日报/CSV二厂房日报/CSV二厂二区-temp");
+					"/home/ucas/software/aluminum-electrolysis/二厂房日报/二厂二区", 
+					"/home/ucas/software/aluminum-electrolysis/CSV日报/CSV二厂房日报/CSV二厂二区-temp");
 
 
 		} catch (Exception e) {

@@ -1123,7 +1123,7 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 		m_gui = false;
 		m_useNomToBin = false;
 		m_driftThreshold = 50;
-		m_numEpochs = 500;
+		m_numEpochs = 1000;
 		m_valSize = 0;
 		m_randomSeed = 0;
 		m_hiddenLayers = "6";
@@ -1940,7 +1940,7 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 
 		// this sets up the validation set.
 		Instances valSet = null;
-		m_valSize = 33;
+		m_valSize = 40;
 		// numinval is needed later
 		int numInVal = (int) (m_valSize / 100.0 * m_instances.numInstances());
 		if (m_valSize > 0) {

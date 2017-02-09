@@ -23,7 +23,7 @@ public class Evaluation {
 	
 	public double predict(Instances train,Instances test,int seed) throws Exception{
 		
-		int classIndex = train.attribute("class").index();
+		int classIndex = train.numAttributes()-1;
 		test.setClassIndex(classIndex);
 		train.setClassIndex(classIndex);
 		cluster.setSeed(seed);
@@ -74,7 +74,7 @@ public class Evaluation {
 	public static void main(String[] args) {
 		Evaluation evl = new Evaluation();
 		
-		String path = "dataset/iris-normalize.arff";
+		String path = "dataset/705_cell-normalize-Regression.arff";
 		LoadData ld = new LoadData();
 		try {
 			evl.cep(ld.loadData(path));

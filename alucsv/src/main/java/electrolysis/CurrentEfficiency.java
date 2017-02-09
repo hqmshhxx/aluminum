@@ -127,8 +127,8 @@ public class CurrentEfficiency {
 	public static void main(String[] args){
 		CurrentEfficiency ce =new CurrentEfficiency();
 		try {
-			ce.cce("/home/ucas/software/aluminium-electrolysis/CSV日报/CSV二厂房日报/CSV二厂二区-temp", 
-					"/home/ucas/software/aluminium-electrolysis/CSV日报/CSV二厂房日报/CSV二厂二区");
+			ce.cce("/home/ucas/software/aluminum-electrolysis/CSV日报/CSV二厂房日报/CSV二厂二区-temp", 
+					"/home/ucas/software/aluminum-electrolysis/CSV日报/CSV二厂房日报/CSV二厂二区");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
