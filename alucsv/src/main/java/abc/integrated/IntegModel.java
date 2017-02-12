@@ -32,7 +32,6 @@ public class IntegModel {
 	private Instances centroids;
 	private Instances[] clusters;
 	
-	
 	private int numClusters = 3;
 	
 	private ExecutorService threadPool;

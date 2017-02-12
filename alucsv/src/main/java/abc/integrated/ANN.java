@@ -35,7 +35,7 @@ public class ANN implements Callable<Boolean>{
 		abcAnn.setData(data);
 		abcAnn.setBp(bp);
 		abcAnn.setInputNum(data.numAttributes() - 1);
-		abcAnn.setHiddenNum(6);
+		abcAnn.setHiddenNum(12);
 		abcAnn.setOutNum(data.numClasses());
 		abcAnn.build();
 		System.out.println("人工蜂群的最小值：" + abcAnn.getMinObjFunValue());

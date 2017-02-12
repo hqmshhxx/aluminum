@@ -11,7 +11,7 @@ public class ABCANN {
 
 
 	/** The number of colony size (employed bees+onlooker bees) */
-	int NP = 20;
+	int NP = 30;
 	/** The number of food sources equals the half of the colony size */
 	int foodNum = NP / 2;
 	/**
@@ -20,7 +20,7 @@ public class ABCANN {
 	 */
 	int limit = 10;
 	/** The number of cycles for foraging {a stopping criteria} */
-	int maxCycle = 10;
+	int maxCycle = 20;
 	int mCycle = 0;
 
 	/** Problem specific variables */

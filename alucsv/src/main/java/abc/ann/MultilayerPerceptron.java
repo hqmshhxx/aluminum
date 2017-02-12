@@ -1127,8 +1127,8 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 		m_valSize = 0;
 		m_randomSeed = 0;
 		m_hiddenLayers = "6";
-		m_learningRate = .3;
-		m_momentum = .2;
+		m_learningRate = .01;
+		m_momentum = .01;
 		m_reset = true;
 		m_decay = false;
 	}
@@ -1940,7 +1940,7 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 
 		// this sets up the validation set.
 		Instances valSet = null;
-		m_valSize = 40;
+		m_valSize = 0;
 		// numinval is needed later
 		int numInVal = (int) (m_valSize / 100.0 * m_instances.numInstances());
 		if (m_valSize > 0) {
@@ -2830,15 +2830,95 @@ public class MultilayerPerceptron extends AbstractClassifier implements
 		System.out.println("test mean of meanAbsoluteError = " + testMeanAbsoluteError + " the std = " + testMeanAbsoluteErrorStd);
 	}
 	
+	
+	public void regression(Instances data)  throws Exception{
+		Random rand = new Random();
+		int mIter = 10;
+		int dataNum = data.numInstances();
+		int trainNum = (int) (0.85 * dataNum);
+		int testNum = dataNum - trainNum;
+		Instances train = new Instances(data, trainNum);
+		Instances test = new Instances(data, testNum);
+		double trainRootMeanSquaredError = 0;
+		double trainMeanAbsoluteError = 0;
+		double trainRootMeanSquaredErrorStd = 0;
+		double trainMeanAbsoluteErrorStd = 0;
+		double[] trainRootMeanSquaredResults = new double[mIter];
+		double[] trainMeanAbsoluteResults = new double[mIter];
+		
+		double testRootMeanSquaredError = 0;
+		double testMeanAbsoluteError = 0;
+		double testRootMeanSquaredErrorStd = 0;
+		double testMeanAbsoluteErrorStd = 0;
+		double[] testRootMeanSquaredResults = new double[mIter];
+		double[] testMeanAbsoluteResults = new double[mIter];
+		for (int k = 0; k < mIter; k++) {
+			train.clear();
+			test.clear();
+			data.randomize(rand);
+			for (int q = 0; q < dataNum; q++) {
+				if (q < trainNum) {
+					train.add(data.instance(q));
+				} else {
+					test.add(data.instance(q));
+				}
+			}
+			predict(train);
+			
+			System.out.println("iter =" + k);
+			System.out.println("global error is "+this.m_error);
+			Evaluation trainEvaluation = new Evaluation(train);
+			trainEvaluation.evaluateModel(this, train);
+			trainRootMeanSquaredError += trainEvaluation.rootMeanSquaredError();
+			trainMeanAbsoluteError += trainEvaluation.meanAbsoluteError();
+			
+			trainRootMeanSquaredResults[k] = trainEvaluation.rootMeanSquaredError();
+			trainMeanAbsoluteResults[k] = trainEvaluation.meanAbsoluteError();
+			System.out.println(trainEvaluation.toSummaryString());
+			
+			Evaluation testEvaluation = new Evaluation(test);
+			testEvaluation.evaluateModel(this, test);
+			testRootMeanSquaredError += testEvaluation.rootMeanSquaredError();
+			testMeanAbsoluteError += testEvaluation.meanAbsoluteError();
+			
+			testRootMeanSquaredResults[k] = testEvaluation.rootMeanSquaredError();
+			testMeanAbsoluteResults[k] = testEvaluation.meanAbsoluteError();
+			System.out.println(testEvaluation.toSummaryString());
+			
+		}
+		trainRootMeanSquaredError /= mIter;
+		trainMeanAbsoluteError /= mIter;
+		for (int i = 0; i < mIter; i++) {
+			trainRootMeanSquaredError += Math.pow(trainRootMeanSquaredResults[i] - trainRootMeanSquaredError, 2);
+			trainMeanAbsoluteErrorStd += Math.pow(trainMeanAbsoluteResults[i] - trainMeanAbsoluteError, 2);
+		}
+		trainRootMeanSquaredErrorStd = Math.sqrt(trainRootMeanSquaredErrorStd);
+		trainMeanAbsoluteErrorStd = Math.sqrt(trainMeanAbsoluteErrorStd);
+		System.out.println("train mean of rootMeanSquaredError = " + trainRootMeanSquaredError + " the std = " + trainRootMeanSquaredErrorStd);
+		System.out.println("train mean of meanAbsoluteError = " + trainMeanAbsoluteError + " the std = " + trainMeanAbsoluteErrorStd);
+		
+		
+		testRootMeanSquaredError /= mIter;
+		testMeanAbsoluteError /= mIter;
+		for (int i = 0; i < mIter; i++) {
+			testRootMeanSquaredError += Math.pow(testRootMeanSquaredResults[i] - testRootMeanSquaredError, 2);
+			testMeanAbsoluteErrorStd += Math.pow(testMeanAbsoluteResults[i] - testMeanAbsoluteError, 2);
+		}
+		testRootMeanSquaredErrorStd = Math.sqrt(testRootMeanSquaredErrorStd);
+		testMeanAbsoluteErrorStd = Math.sqrt(testMeanAbsoluteErrorStd);
+		System.out.println("test mean of rootMeanSquaredError = " + testRootMeanSquaredError + " the std = " + testRootMeanSquaredErrorStd);
+		System.out.println("test mean of meanAbsoluteError = " + testMeanAbsoluteError + " the std = " + testMeanAbsoluteErrorStd);
+	}
 
 	public void cep() throws Exception {
-		String path = "dataset/winequality-red-normalize.arff";
+		String path = "dataset/705_cell_2-normalize-regression.arff";
 		LoadData ld = new LoadData();
 		Instances data = ld.loadData(path);
 		data.setClassIndex(data.numAttributes()-1);
 //		data.setClassIndex(0);
 		long start = System.currentTimeMillis();
-		classifier(data);
+//		classifier(data);
+		regression(data);
 		long end = System.currentTimeMillis();
 		System.out.println((end-start)/1000+"s");
 		

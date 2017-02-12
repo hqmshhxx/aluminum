@@ -66,8 +66,8 @@ public class ABCBP {
 			predict(train);
 			
 			System.out.println("iter =" + k);
-			Evaluation trainEvaluation = new Evaluation(data);
-			trainEvaluation.evaluateModel(bp, data);
+			Evaluation trainEvaluation = new Evaluation(train);
+			trainEvaluation.evaluateModel(bp, train);
 			trainRootMeanSquaredError += trainEvaluation.rootMeanSquaredError();
 			trainMeanAbsoluteError += trainEvaluation.meanAbsoluteError();
 			
