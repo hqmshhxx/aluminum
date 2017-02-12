@@ -25,6 +25,7 @@
 	<modules>
 		<module>alucsv</module>
 		<module>aludb</module>
+		<module>chart</module>
 	</modules>
 </project>
 <plugin>
