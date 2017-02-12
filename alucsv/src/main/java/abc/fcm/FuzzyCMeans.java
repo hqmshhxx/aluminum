@@ -120,7 +120,7 @@ public class FuzzyCMeans extends RandomizableClusterer implements
 	/**
 	 * Maximum number of iterations to be executed. 最大迭代次数
 	 */
-	protected int m_MaxIterations = 50;
+	protected int m_MaxIterations = 100;
 
 	/**
 	 * Holds the squared errors for all clusters. 平方误差
