@@ -1,4 +1,4 @@
-package cluster;
+package data;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,8 +6,7 @@ import java.util.Random;
 
 import weka.core.Instances;
 import weka.core.converters.ArffLoader;
-import weka.core.converters.ArffSaver;
-
+import weka.core.converters.XRFFSaver;
 
 public class LoadData {
 	
@@ -24,7 +23,8 @@ public class LoadData {
 		}
 		return instances;
 	}
-	public Instances changeTarget(Instances instances,double base,int Multiple){
+	
+	public Instances changeTarget(Instances instances){
 		
 		Instances newIns = new Instances(instances);
 		Random rand = new Random();
@@ -32,13 +32,13 @@ public class LoadData {
 		int numIns = instances.numInstances();
 		int numAttr = instances.numAttributes();
 		for(int i=0; i<numIns;i++){
-			newIns.instance(i).setValue(numAttr-1, (base + Multiple*rand.nextDouble())/100);
+			instances.instance(i).setValue(numAttr-1, 88.0 + 2*rand.nextDouble());
 		}
 		return newIns;
 	}
 	
 	public void saveData(Instances instances,String fileName){
-		ArffSaver saver = new ArffSaver();
+		XRFFSaver saver = new XRFFSaver();
 		saver.setInstances(instances);
 		File outputFile = new File(fileName);
 		try {
@@ -48,6 +48,14 @@ public class LoadData {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	public static void main(String[] args){
+		LoadData ld = new LoadData();
+		String fileName ="";
+		Instances instances = ld.loadData(fileName);
+		Instances newIns = ld.changeTarget(instances);
+		String toPath = "";
+		ld.saveData(newIns,toPath);
 	}
 
 }

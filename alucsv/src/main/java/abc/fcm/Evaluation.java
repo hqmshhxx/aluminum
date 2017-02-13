@@ -76,8 +76,8 @@ public class Evaluation {
 	
 	
 	public void saveClusters(){
-		String path = "dataset/705_cell_3.arff";
-		String newPath = "dataset/705_cell_3-regression.arff";
+		String path = "dataset/705-230-cluster.arff";
+		String newPath = "dataset/705-230-regression.arff";
 		LoadData ld = new LoadData();
 		Instances instances = ld.loadData(path);
 		Instances newInstances = ld.loadData(newPath);
@@ -114,20 +114,20 @@ public class Evaluation {
 		for(int i=0; i<mClusters.length; i++){
 			int num = mClusters[i].numInstances();
 			Instances changed = null;
-			if(num==114){
+			if(num==93){
 				changed = ld.changeTarget(mClusters[i],88,2);
-			}else if(num==117){
+			}else if(num==60){
 				changed = ld.changeTarget(mClusters[i],90,3);
 			}else{
 				changed = ld.changeTarget(mClusters[i],93,3);
 			}
 			newInstances.addAll(changed);
-			ld.saveData(changed, "/home/ucas/software/aluminum-electrolysis/CSV日报/cluster-result/"+num+".arff");
+			ld.saveData(changed, "/home/ucas/software/aluminum-electrolysis/CSV日报/best-results/"+num+"111.arff");
 		}
 		Random rand = new Random();
 		rand.setSeed(0);
 		newInstances.randomize(rand);
-		ld.saveData(newInstances, "/home/ucas/software/aluminum-electrolysis/CSV日报/cluster-result/705-plain.arff");
+		ld.saveData(newInstances, "/home/ucas/software/aluminum-electrolysis/CSV日报/best-results/705-230-plot.arff");
 	}
 	public static void main(String[] args) {
 		Evaluation evl = new Evaluation();
