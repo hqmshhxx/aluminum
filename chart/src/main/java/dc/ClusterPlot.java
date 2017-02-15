@@ -33,7 +33,7 @@ public class ClusterPlot {
 		//Y轴
 		NumberAxis numberAxis = (NumberAxis) mPlot.getRangeAxis();
 		numberAxis.setAutoRangeMinimumSize(0.01);
-		numberAxis.setRange(0.85, 0.98);
+		numberAxis.setRange(0.85, 0.95);
 		//X轴
 		NumberAxis domainAxis = (NumberAxis) mPlot.getDomainAxis();  
 		domainAxis.setAutoRangeMinimumSize(10);

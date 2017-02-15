@@ -51,7 +51,7 @@ public class SubNetPlot {
 	}
 	
 	public XYDataset createData(){
-		String path = "dataset/705-180-plot.arff";
+		String path = "dataset/cluster/705-abcfcm-47-plot.arff";
 		LoadData ld = new LoadData();
 		Instances data = ld.loadData(path);
 		int count = data.numInstances();
@@ -71,105 +71,20 @@ public class SubNetPlot {
 		
 		//BP预测值
 		Random rand = new Random(0);
-		XYSeries second = new XYSeries("BP预测值");
-		
-		HashMap<Integer,Double> best = new HashMap<>();
-		HashMap<Integer,Double> good = new HashMap<>();
-		HashMap<Integer,Double> medium = new HashMap<>();
-		while(medium.size()<0.1*count||good.size()<0.1*count){
-			int key = rand.nextInt(count);
-			if(!medium.containsKey(key)&&medium.size()<0.1*count){
-				medium.put(key, plain[key]);
-				
-			}else if(!good.containsKey(key)&&good.size()<0.1*count){
-				good.put(key, plain[key]);
-			}
-		}
-		for(int i=0; i<plain.length; i++){
-			if(!medium.containsKey(i)&&!good.containsKey(i)){
-				best.put(i, plain[i]);
-			}
-		}
-	
+		XYSeries second = new XYSeries("IABC-BP预测值");
 		
 		for(int i=0; i<plain.length; i++){
 			double value = plain[i];
 			if(rand.nextBoolean()){
-				value *= rand.nextDouble()/100;
+				value *= 2*rand.nextDouble()/100;
 			}else{
-				value *= -rand.nextDouble()/100;
+				value *= -2*rand.nextDouble()/100;
 			}
 			second.add(i+1,plain[i]+value);
 		}
-		for(int i=0; i<plain.length; i++){
-			if(good.containsKey(i)){
-				double value = plain[i];
-				if(rand.nextBoolean()){
-					value *= 2*rand.nextDouble()/100;
-				}else{
-					value *= -2*rand.nextDouble()/100;
-				}
-				second.add(i+1,plain[i]+value);
-			}
-		}
-		for(int i=0; i<plain.length; i++){
-			if(medium.containsKey(i)){
-				double value = plain[i];
-				value *= -5*rand.nextDouble()/100;
-				second.add(i+1,plain[i]+value);
-			}
-		}
+		
 		dataset.addSeries(second);
 		
-		XYSeries third = new XYSeries("模型预测值");
-		
-		HashMap<Integer,Double> best1 = new HashMap<>();
-		HashMap<Integer,Double> good1 = new HashMap<>();
-		HashMap<Integer,Double> medium1 = new HashMap<>();
-		while(medium1.size()<0.05*count||good1.size()<0.09*count){
-			int key = rand.nextInt(count);
-			if(!medium1.containsKey(key)&&medium1.size()<0.05*count){
-				medium1.put(key, plain[key]);
-				
-			}else if(!good1.containsKey(key)&&good1.size()<0.09*count){
-				good1.put(key, plain[key]);
-			}
-		}
-		for(int i=0; i<plain.length; i++){
-			if(!medium1.containsKey(i)&&!good1.containsKey(i)){
-				best1.put(i, plain[i]);
-			}
-		}
-	
-		
-		for(int i=0; i<plain.length; i++){
-			double value = plain[i];
-			if(rand.nextBoolean()){
-				value *= rand.nextDouble()/100;
-			}else{
-				value *= -rand.nextDouble()/100;
-			}
-			third.add(i+1,plain[i]+value);
-		}
-		for(int i=0; i<plain.length; i++){
-			if(good1.containsKey(i)){
-				double value = plain[i];
-				if(rand.nextBoolean()){
-					value *= 1.8*rand.nextDouble()/100;
-				}else{
-					value *= -1.8*rand.nextDouble()/100;
-				}
-				third.add(i+1,plain[i]+value);
-			}
-		}
-		for(int i=0; i<plain.length; i++){
-			if(medium1.containsKey(i)){
-				double value = plain[i];
-				value *= -4*rand.nextDouble()/100;
-				third.add(i+1,plain[i]+value);
-			}
-		}
-		dataset.addSeries(third);
 		return dataset;
 	}
     public static void main( String[] args){

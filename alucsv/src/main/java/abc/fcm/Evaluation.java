@@ -1,6 +1,5 @@
 package abc.fcm;
 
-import java.io.File;
 import java.util.Random;
 
 import cluster.LoadData;
@@ -76,8 +75,10 @@ public class Evaluation {
 	
 	
 	public void saveClusters(){
-		String path = "dataset/705-230-cluster.arff";
-		String newPath = "dataset/705-230-regression.arff";
+		String path = "dataset/705-180-cluster.arff";
+		String newPath = "dataset/705-180-regression.arff";
+//		String path = "dataset/705-230-cluster.arff";
+//		String newPath = "dataset/705-230-regression.arff";
 		LoadData ld = new LoadData();
 		Instances instances = ld.loadData(path);
 		Instances newInstances = ld.loadData(newPath);
@@ -114,20 +115,20 @@ public class Evaluation {
 		for(int i=0; i<mClusters.length; i++){
 			int num = mClusters[i].numInstances();
 			Instances changed = null;
-			if(num==93){
-				changed = ld.changeTarget(mClusters[i],88,2);
-			}else if(num==60){
-				changed = ld.changeTarget(mClusters[i],90,3);
+			if(num==70){
+				changed = ld.changeTarget(mClusters[i],87,2);
+			}else if(num==47){
+				changed = ld.changeTarget(mClusters[i],89,2);
 			}else{
-				changed = ld.changeTarget(mClusters[i],93,3);
+				changed = ld.changeTarget(mClusters[i],91,2);
 			}
 			newInstances.addAll(changed);
-			ld.saveData(changed, "/home/ucas/software/aluminum-electrolysis/CSV日报/best-results/"+num+"111.arff");
+			ld.saveData(changed, "/home/ucas/software/aluminum-electrolysis/CSV日报/best-results/"+num+"1111.arff");
 		}
 		Random rand = new Random();
 		rand.setSeed(0);
 		newInstances.randomize(rand);
-		ld.saveData(newInstances, "/home/ucas/software/aluminum-electrolysis/CSV日报/best-results/705-230-plot.arff");
+		ld.saveData(newInstances, "/home/ucas/software/aluminum-electrolysis/CSV日报/best-results/705-180-plot.arff");
 	}
 	public static void main(String[] args) {
 		Evaluation evl = new Evaluation();
