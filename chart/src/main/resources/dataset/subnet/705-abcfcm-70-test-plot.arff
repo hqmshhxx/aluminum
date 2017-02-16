@@ -1,0 +1,26 @@
+@relation 'QueryResult-weka.filters.unsupervised.attribute.Remove-R1,8-weka.filters.unsupervised.attribute.Remove-R8'
+
+@attribute dianyayusheding numeric
+@attribute dianjiewendu numeric
+@attribute fenzibi numeric
+@attribute alfjialiaosheding numeric
+@attribute lvshuiping numeric
+@attribute dianjiezhishuiping numeric
+@attribute dianliuxiaolv numeric
+
+@data
+
+3.995,949,2.46,20,250,180,0.885721
+4.01,951,2.54,15,230,150,0.887662
+4,955,2.56,25,260,180,0.873406
+4,952,2.46,20,225,190,0.889241
+4,949,2.62,25,230,170,0.884486
+4,951,2.66,25,250,180,0.883547
+4,948,2.3,20,240,220,0.886088
+4.01,949,2.6,20,245,220,0.878829
+4,941,2.5,15,235,130,0.879242
+4.01,948,2.54,25,265,190,0.887057
+4,951,2.54,20,245,210,0.880037
+4,954,2.7,20,240,220,0.889839
+4,943,2.64,10,260,170,0.890193
+4,940,2.6,20,250,200,0.889385

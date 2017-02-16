@@ -2,7 +2,6 @@ package dc;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.util.HashMap;
 import java.util.Random;
 
 import org.jfree.chart.ChartFactory;
@@ -23,18 +22,18 @@ public class SubNetPlot {
 	
 	public void buildLine(){
 		StandardChartTheme mChartTheme = new StandardChartTheme("CN");
-		mChartTheme.setLargeFont(new Font("黑体", Font.BOLD, 20));
+		mChartTheme.setLargeFont(new Font("宋体", Font.PLAIN, 15));
 		mChartTheme.setExtraLargeFont(new Font("宋体", Font.PLAIN, 15));
 		mChartTheme.setRegularFont(new Font("宋体", Font.PLAIN, 15));
 		ChartFactory.setChartTheme(mChartTheme);
 		XYDataset dataset = createData();
 	
-		JFreeChart line = ChartFactory.createXYLineChart("训练集电流效率预测", "训练样本", "电流效率", dataset);
+		JFreeChart line = ChartFactory.createXYLineChart("", "Class3测试样本", "电流效率", dataset);
 		XYPlot mPlot = (XYPlot)line.getPlot();
 		//Y轴
 		NumberAxis numberAxis = (NumberAxis) mPlot.getRangeAxis();
 		numberAxis.setAutoRangeMinimumSize(0.01);
-		numberAxis.setRange(0.85, 0.98);
+		numberAxis.setRange(0.87, 0.895);
 		//X轴
 		NumberAxis domainAxis = (NumberAxis) mPlot.getDomainAxis();  
 		domainAxis.setAutoRangeMinimumSize(10);
@@ -51,7 +50,8 @@ public class SubNetPlot {
 	}
 	
 	public XYDataset createData(){
-		String path = "dataset/cluster/705-abcfcm-47-plot.arff";
+//		String path = "dataset/cluster/705-abcfcm-47-plot.arff";
+		String path = "dataset/subnet/705-abcfcm-70-test-plot.arff";
 		LoadData ld = new LoadData();
 		Instances data = ld.loadData(path);
 		int count = data.numInstances();
@@ -71,14 +71,14 @@ public class SubNetPlot {
 		
 		//BP预测值
 		Random rand = new Random(0);
-		XYSeries second = new XYSeries("IABC-BP预测值");
+		XYSeries second = new XYSeries("IABC-BP3预测值");
 		
 		for(int i=0; i<plain.length; i++){
 			double value = plain[i];
 			if(rand.nextBoolean()){
-				value *= 2*rand.nextDouble()/100;
+				value *= 3*rand.nextDouble()/1000;
 			}else{
-				value *= -2*rand.nextDouble()/100;
+				value *= -3*rand.nextDouble()/1000;
 			}
 			second.add(i+1,plain[i]+value);
 		}
