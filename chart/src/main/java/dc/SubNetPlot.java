@@ -28,12 +28,12 @@ public class SubNetPlot {
 		ChartFactory.setChartTheme(mChartTheme);
 		XYDataset dataset = createData();
 	
-		JFreeChart line = ChartFactory.createXYLineChart("", "Class2测试样本", "电流效率", dataset);
+		JFreeChart line = ChartFactory.createXYLineChart("", "Class1测试样本", "电流效率", dataset);
 		XYPlot mPlot = (XYPlot)line.getPlot();
 		//Y轴
 		NumberAxis numberAxis = (NumberAxis) mPlot.getRangeAxis();
 		numberAxis.setAutoRangeMinimumSize(0.01);
-		numberAxis.setRange(0.88, 0.92);
+		numberAxis.setRange(0.90, 0.94);
 		//X轴
 		NumberAxis domainAxis = (NumberAxis) mPlot.getDomainAxis();  
 		domainAxis.setAutoRangeMinimumSize(10);
@@ -51,7 +51,7 @@ public class SubNetPlot {
 	
 	public XYDataset createData(){
 //		String path = "dataset/cluster/705-abcfcm-47-plot.arff";
-		String path = "dataset/subnet/705-abcfcm-47-test-plot.arff";
+		String path = "dataset/subnet/705-abcfcm-63-test-plot.arff";
 		LoadData ld = new LoadData();
 		Instances data = ld.loadData(path);
 		int count = data.numInstances();
@@ -71,7 +71,7 @@ public class SubNetPlot {
 		
 		//BP预测值
 		Random rand = new Random(0);
-		XYSeries second = new XYSeries("IABC-BP2预测值");
+		XYSeries second = new XYSeries("IABC-BP1预测值");
 		
 		for(int i=0; i<plain.length; i++){
 			double value = plain[i];

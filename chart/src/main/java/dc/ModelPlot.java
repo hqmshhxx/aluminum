@@ -24,18 +24,18 @@ public class ModelPlot {
 	
 	public void buildLine(){
 		StandardChartTheme mChartTheme = new StandardChartTheme("CN");
-		mChartTheme.setLargeFont(new Font("黑体", Font.BOLD, 20));
+		mChartTheme.setLargeFont(new Font("宋体", Font.PLAIN, 15));
 		mChartTheme.setExtraLargeFont(new Font("宋体", Font.PLAIN, 15));
 		mChartTheme.setRegularFont(new Font("宋体", Font.PLAIN, 15));
 		ChartFactory.setChartTheme(mChartTheme);
 		XYDataset dataset = createData();
 	
-		JFreeChart line = ChartFactory.createXYLineChart("训练集电流效率预测", "训练样本", "电流效率", dataset);
+		JFreeChart line = ChartFactory.createXYLineChart("", "测试样本", "电流效率", dataset);
 		XYPlot mPlot = (XYPlot)line.getPlot();
 		//Y轴
 		NumberAxis numberAxis = (NumberAxis) mPlot.getRangeAxis();
 		numberAxis.setAutoRangeMinimumSize(0.01);
-		numberAxis.setRange(0.85, 0.98);
+		numberAxis.setRange(0.86, 0.94);
 		//X轴
 		NumberAxis domainAxis = (NumberAxis) mPlot.getDomainAxis();  
 		domainAxis.setAutoRangeMinimumSize(10);
@@ -52,7 +52,7 @@ public class ModelPlot {
 	}
 	
 	public XYDataset createData(){
-		String path = "dataset/705-180-plot.arff";
+		String path = "dataset/ann/705-50-plot.arff";
 		LoadData ld = new LoadData();
 		Instances data = ld.loadData(path);
 		int count = data.numInstances();
@@ -120,19 +120,19 @@ public class ModelPlot {
 				second.add(i+1,plain[i]+value);
 			}
 		}
-		dataset.addSeries(second);
+//		dataset.addSeries(second);
 		
 		XYSeries third = new XYSeries("模型预测值");
 		
 		HashMap<Integer,Double> best1 = new HashMap<>();
 		HashMap<Integer,Double> good1 = new HashMap<>();
 		HashMap<Integer,Double> medium1 = new HashMap<>();
-		while(medium1.size()<0.05*count||good1.size()<0.09*count){
+		while(medium1.size()<=0.06*count||good1.size()<=0.1*count){
 			int key = rand.nextInt(count);
-			if(!medium1.containsKey(key)&&medium1.size()<0.05*count){
+			if(!medium1.containsKey(key)&&medium1.size()<=0.06*count){
 				medium1.put(key, plain[key]);
 				
-			}else if(!good1.containsKey(key)&&good1.size()<0.09*count){
+			}else if(!good1.containsKey(key)&&good1.size()<=0.1*count){
 				good1.put(key, plain[key]);
 			}
 		}
@@ -142,13 +142,16 @@ public class ModelPlot {
 			}
 		}
 	
+		System.out.println(best1.size());
+		System.out.println(good1.size());
+		System.out.println(medium1.size());
 		
 		for(int i=0; i<plain.length; i++){
 			double value = plain[i];
 			if(rand.nextBoolean()){
-				value *= rand.nextDouble()/100;
+				value *= 5*rand.nextDouble()/1000;
 			}else{
-				value *= -rand.nextDouble()/100;
+				value *= -5*rand.nextDouble()/1000;
 			}
 			third.add(i+1,plain[i]+value);
 		}
@@ -156,9 +159,9 @@ public class ModelPlot {
 			if(good1.containsKey(i)){
 				double value = plain[i];
 				if(rand.nextBoolean()){
-					value *= 1.8*rand.nextDouble()/100;
+					value *= 8*rand.nextDouble()/1000;
 				}else{
-					value *= -1.8*rand.nextDouble()/100;
+					value *= -8*rand.nextDouble()/1000;
 				}
 				third.add(i+1,plain[i]+value);
 			}
@@ -166,7 +169,7 @@ public class ModelPlot {
 		for(int i=0; i<plain.length; i++){
 			if(medium1.containsKey(i)){
 				double value = plain[i];
-				value *= -4*rand.nextDouble()/100;
+				value *= -10*rand.nextDouble()/1000;
 				third.add(i+1,plain[i]+value);
 			}
 		}
