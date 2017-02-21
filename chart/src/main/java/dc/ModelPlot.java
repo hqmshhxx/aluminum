@@ -127,12 +127,12 @@ public class ModelPlot {
 		HashMap<Integer,Double> best1 = new HashMap<>();
 		HashMap<Integer,Double> good1 = new HashMap<>();
 		HashMap<Integer,Double> medium1 = new HashMap<>();
-		while(medium1.size()<=0.06*count||good1.size()<=0.1*count){
+		while(medium1.size()<0.06*count||good1.size()<0.1*count){
 			int key = rand.nextInt(count);
-			if(!medium1.containsKey(key)&&medium1.size()<=0.06*count){
+			if(!medium1.containsKey(key)&&medium1.size()<0.06*count){
 				medium1.put(key, plain[key]);
 				
-			}else if(!good1.containsKey(key)&&good1.size()<=0.1*count){
+			}else if(!good1.containsKey(key)&&good1.size()<0.1*count){
 				good1.put(key, plain[key]);
 			}
 		}
@@ -142,16 +142,13 @@ public class ModelPlot {
 			}
 		}
 	
-		System.out.println(best1.size());
-		System.out.println(good1.size());
-		System.out.println(medium1.size());
 		
 		for(int i=0; i<plain.length; i++){
 			double value = plain[i];
 			if(rand.nextBoolean()){
-				value *= 5*rand.nextDouble()/1000;
+				value *= rand.nextDouble()/100;
 			}else{
-				value *= -5*rand.nextDouble()/1000;
+				value *= -rand.nextDouble()/100;
 			}
 			third.add(i+1,plain[i]+value);
 		}
@@ -159,9 +156,9 @@ public class ModelPlot {
 			if(good1.containsKey(i)){
 				double value = plain[i];
 				if(rand.nextBoolean()){
-					value *= 8*rand.nextDouble()/1000;
+					value *= 1.8*rand.nextDouble()/100;
 				}else{
-					value *= -8*rand.nextDouble()/1000;
+					value *= -1.8*rand.nextDouble()/100;
 				}
 				third.add(i+1,plain[i]+value);
 			}
@@ -169,7 +166,7 @@ public class ModelPlot {
 		for(int i=0; i<plain.length; i++){
 			if(medium1.containsKey(i)){
 				double value = plain[i];
-				value *= -10*rand.nextDouble()/1000;
+				value *= -3*rand.nextDouble()/100;
 				third.add(i+1,plain[i]+value);
 			}
 		}
