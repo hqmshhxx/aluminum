@@ -33,7 +33,7 @@ public class SubNetPlot {
 		//Y轴
 		NumberAxis numberAxis = (NumberAxis) mPlot.getRangeAxis();
 		numberAxis.setAutoRangeMinimumSize(0.01);
-		numberAxis.setRange(0.90, 0.94);
+		numberAxis.setRange(0.905, 0.94);
 		//X轴
 		NumberAxis domainAxis = (NumberAxis) mPlot.getDomainAxis();  
 		domainAxis.setAutoRangeMinimumSize(10);
@@ -76,9 +76,9 @@ public class SubNetPlot {
 		for(int i=0; i<plain.length; i++){
 			double value = plain[i];
 			if(rand.nextBoolean()){
-				value *= 0.4*rand.nextDouble()/100;
+				value *= 0.5*rand.nextDouble()/100;
 			}else{
-				value *= -0.4*rand.nextDouble()/100;
+				value *= -0.5*rand.nextDouble()/100;
 			}
 			second.add(i+1,plain[i]+value);
 		}
