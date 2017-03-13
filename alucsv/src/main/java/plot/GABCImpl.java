@@ -2,10 +2,12 @@ package plot;
 
 public class GABCImpl extends GABC{
 	
-	double lb = -100.0;
-	
-	double ub = 100.0;
-
+	public GABCImpl(double lb, double ub, int maxCycle){
+		super(lb,ub,maxCycle);
+		this.lb = lb;
+		this.ub = ub;
+		this.maxCycle = maxCycle;
+	}
 	@Override
 	public double calculateFunction(double[] sol) {
 		// TODO Auto-generated method stub

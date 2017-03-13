@@ -6,6 +6,17 @@ import java.util.Random;
 
 public abstract class IABC extends AbstractABC implements ABC{
 	
+	public IABC(double lb, double ub, int maxCycle){
+		super.lb = lb;
+		super.ub = ub;
+		super.maxCycle = maxCycle;
+		
+		this.lb = lb;
+		this.ub = ub;
+		this.maxCycle = maxCycle;
+	}
+
+	
 	/**
 	 * the mean Euclidean distance between X_{m} and the rest  of solutions
 	 */

@@ -3,6 +3,17 @@ package plot;
 import java.util.Random;
 
 public abstract class GABC extends AbstractABC implements ABC{
+	
+	public GABC(double lb, double ub, int maxCycle){
+		super.lb = lb;
+		super.ub = ub;
+		super.maxCycle = maxCycle;
+		
+		this.lb = lb;
+		this.ub = ub;
+		this.maxCycle = maxCycle;
+	}
+
 
 	@Override
 	public void sendOnlookerBees() {

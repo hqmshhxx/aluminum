@@ -89,7 +89,7 @@ public abstract class AbstractABC implements ABC{
 	/** a random number in the range [0,1) */
 	double r;
 	
-	double[] meanFunctionValues = new double[maxCycle];
+	double[] meanFunctionValues ;
 
 	@Override
 	public void init(int index) {
@@ -237,6 +237,8 @@ public abstract class AbstractABC implements ABC{
 	@Override
 	public void runABC() {
 		// TODO Auto-generated method stub
+		meanFunctionValues = new double[maxCycle];
+		System.out.println("ub = "+this.ub+" lb = "+this.lb+" maxCycle = "+this.maxCycle);
 		double mean = 0;
 		for (int run = 0; run < runtime; run++) {
 			initial();
