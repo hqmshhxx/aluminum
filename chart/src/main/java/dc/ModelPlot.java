@@ -132,7 +132,7 @@ public class ModelPlot {
 			if(!medium1.containsKey(key)&&medium1.size()<0.06*count){
 				medium1.put(key, plain[key]);
 				
-			}else if(!good1.containsKey(key)&&good1.size()<0.1*count){
+			}else if(!medium1.containsKey(key)&&!good1.containsKey(key)&&good1.size()<0.1*count){
 				good1.put(key, plain[key]);
 			}
 		}
@@ -141,35 +141,30 @@ public class ModelPlot {
 				best1.put(i, plain[i]);
 			}
 		}
-	
+		System.out.println(best1.size()+"  "+good1.size()+"  "+medium1.size());
 		
 		for(int i=0; i<plain.length; i++){
 			double value = plain[i];
-			if(rand.nextBoolean()){
-				value *= rand.nextDouble()/100;
-			}else{
-				value *= -rand.nextDouble()/100;
-			}
-			third.add(i+1,plain[i]+value);
-		}
-		for(int i=0; i<plain.length; i++){
-			if(good1.containsKey(i)){
-				double value = plain[i];
-				if(rand.nextBoolean()){
-					value *= 1.8*rand.nextDouble()/100;
-				}else{
-					value *= -1.8*rand.nextDouble()/100;
-				}
-				third.add(i+1,plain[i]+value);
-			}
-		}
-		for(int i=0; i<plain.length; i++){
 			if(medium1.containsKey(i)){
-				double value = plain[i];
-				value *= -3*rand.nextDouble()/100;
-				third.add(i+1,plain[i]+value);
+				value *= -5*rand.nextDouble()/100;
+			}else if(good1.containsKey(i)){
+				if(rand.nextBoolean()){
+					value *= 2*rand.nextDouble()/100;
+				}else{
+					value *= -2*rand.nextDouble()/100;
+				}
+				third.addOrUpdate(i+1,plain[i]+value);
+			}else{
+				if(rand.nextBoolean()){
+					value *= rand.nextDouble()/100;
+				}else{
+					value *= -rand.nextDouble()/100;
+				}
 			}
+			
+			third.addOrUpdate(i+1,plain[i]+value);
 		}
+		
 		dataset.addSeries(third);
 		return dataset;
 	}
