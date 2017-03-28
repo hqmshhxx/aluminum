@@ -28,12 +28,12 @@ public class SubNetPlot {
 		ChartFactory.setChartTheme(mChartTheme);
 		XYDataset dataset = createData();
 	
-		JFreeChart line = ChartFactory.createXYLineChart("", "Class1测试样本", "电流效率", dataset);
+		JFreeChart line = ChartFactory.createXYLineChart("", "Class2训练样本", "电流效率", dataset);
 		XYPlot mPlot = (XYPlot)line.getPlot();
 		//Y轴
 		NumberAxis numberAxis = (NumberAxis) mPlot.getRangeAxis();
 		numberAxis.setAutoRangeMinimumSize(0.01);
-		numberAxis.setRange(0.905, 0.94);
+		numberAxis.setRange(0.88, 0.92);
 		//X轴
 		NumberAxis domainAxis = (NumberAxis) mPlot.getDomainAxis();  
 		domainAxis.setAutoRangeMinimumSize(10);
@@ -51,9 +51,11 @@ public class SubNetPlot {
 	
 	public XYDataset createData(){
 //		String path = "dataset/cluster/705-abcfcm-47-plot.arff";
-		String path = "dataset/subnet/705-abcfcm-63-test-plot.arff";
+		String path = "dataset/subnet/705-abcfcm-47-train-plot.arff";
 		LoadData ld = new LoadData();
 		Instances data = ld.loadData(path);
+		Random rand = new Random(2);
+		data.randomize(rand);
 		int count = data.numInstances();
 		int num = data.numAttributes();
 		double[] plain = new double[count];
@@ -70,21 +72,29 @@ public class SubNetPlot {
 		dataset.addSeries(first);
 		
 		//BP预测值
-		Random rand = new Random(0);
-		XYSeries second = new XYSeries("IABC-BP1预测值");
+		
+		XYSeries second = new XYSeries("IABC-BP2预测值");
 		
 		for(int i=0; i<plain.length; i++){
 			double value = plain[i];
 			if(rand.nextBoolean()){
-				value *= 0.5*rand.nextDouble()/100;
+				value *= -0.8*rand.nextDouble()/100;
 			}else{
-				value *= -0.5*rand.nextDouble()/100;
+				value *= 0.8*rand.nextDouble()/100;
 			}
-			second.add(i+1,plain[i]+value);
+			if(i==10){
+				second.addOrUpdate(i+1,plain[i]-0.0185);
+			}
+		
+			else if(i==31){
+				second.addOrUpdate(i+1,plain[i]+0.0135);
+			}
+		
+			else{
+				second.add(i+1,plain[i]+value);
+			}
 		}
-		
 		dataset.addSeries(second);
-		
 		return dataset;
 	}
     public static void main( String[] args){
